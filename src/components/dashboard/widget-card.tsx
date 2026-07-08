@@ -1,0 +1,52 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { type LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+export function WidgetCard({
+  title,
+  icon: Icon,
+  color = "bg-brand/12 text-brand",
+  index = 0,
+  className,
+  children,
+}: {
+  title: string;
+  icon?: LucideIcon;
+  /** Literal Tailwind classes, e.g. "bg-muscle-chest/12 text-muscle-chest" */
+  color?: string;
+  index?: number;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, delay: index * 0.04, ease: "easeOut" }}
+      whileHover={{ y: -3 }}
+      className={cn(className)}
+    >
+      <Card className="group h-full gap-3 py-5 transition-shadow duration-300 hover:shadow-lg hover:shadow-brand/10 hover:ring-brand/20">
+        <CardHeader className="flex flex-row items-center justify-between px-5">
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            {title}
+          </CardTitle>
+          {Icon && (
+            <span
+              className={cn(
+                "flex size-7 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6",
+                color
+              )}
+            >
+              <Icon className="size-3.5" />
+            </span>
+          )}
+        </CardHeader>
+        <CardContent className="px-5">{children}</CardContent>
+      </Card>
+    </motion.div>
+  );
+}

@@ -1,3 +1,9 @@
+# Fenrir
+
+Suivi d'entraînements et de progression pour la musculation — programmes,
+séances, analytics et poids de corps. Voir [DEPLOYMENT.md](./DEPLOYMENT.md)
+pour le déploiement en production.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

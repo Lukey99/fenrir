@@ -1,0 +1,306 @@
+// Prisma schema — Fenrir
+// https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Auth.js (NextAuth v5) — Prisma adapter models
+// https://authjs.dev/reference/adapter/prisma
+// ---------------------------------------------------------------------------
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---------------------------------------------------------------------------
+// App enums
+// ---------------------------------------------------------------------------
+
+enum Unit {
+  KG
+  LBS
+}
+
+enum Theme {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+enum MuscleGroup {
+  CHEST
+  BACK
+  SHOULDERS
+  BICEPS
+  TRICEPS
+  FOREARMS
+  QUADRICEPS
+  HAMSTRINGS
+  GLUTES
+  CALVES
+  CORE
+}
+
+enum ProgramStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum WorkoutSessionStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+enum SessionExerciseAction {
+  ORIGINAL
+  SWAPPED
+  ADDED
+  SKIPPED
+}
+
+// ---------------------------------------------------------------------------
+// User & settings
+// ---------------------------------------------------------------------------
+
+model User {
+  id             String    @id @default(cuid())
+  name           String?
+  email          String?   @unique
+  emailVerified  DateTime?
+  image          String?
+  passwordHash   String?
+
+  unitPreference Unit      @default(KG)
+  theme          Theme     @default(SYSTEM)
+  locale         String    @default("fr")
+  heightCm       Int?
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  accounts        Account[]
+  sessions        Session[]
+  exercises       Exercise[]
+  programs        Program[]
+  workoutSessions WorkoutSession[]
+  bodyWeightEntries BodyWeightEntry[]
+  weightGoals     WeightGoal[]
+}
+
+// ---------------------------------------------------------------------------
+// Exercise database
+// ---------------------------------------------------------------------------
+
+model Exercise {
+  id          String      @id @default(cuid())
+  name        String
+  muscleGroup MuscleGroup
+  equipment   String?
+  isCustom    Boolean     @default(false)
+
+  // null for built-in exercises shared by everyone, set for a user's custom exercise
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  programDayExercises ProgramDayExercise[]
+  sessionExercises    SessionExercise[]
+
+  @@index([muscleGroup])
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// Program builder (template)
+// ---------------------------------------------------------------------------
+
+model Program {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  status      ProgramStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  days ProgramDay[]
+
+  @@index([userId])
+}
+
+model ProgramDay {
+  id        String  @id @default(cuid())
+  programId String
+  program   Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+  order     Int
+  name      String // e.g. "Push Day A"
+  label     String? // e.g. "Push", "Upper", "Custom"
+
+  exercises       ProgramDayExercise[]
+  workoutSessions WorkoutSession[]
+
+  @@index([programId])
+}
+
+model ProgramDayExercise {
+  id           String     @id @default(cuid())
+  programDayId String
+  programDay   ProgramDay @relation(fields: [programDayId], references: [id], onDelete: Cascade)
+  exerciseId   String
+  exercise     Exercise   @relation(fields: [exerciseId], references: [id])
+
+  order        Int
+  targetSets   Int
+  targetRepsMin Int
+  targetRepsMax Int
+  targetWeight Decimal? @db.Decimal(6, 2)
+  restSeconds  Int?
+  notes        String?
+
+  sessionExercises SessionExercise[]
+
+  @@index([programDayId])
+}
+
+// ---------------------------------------------------------------------------
+// Workout tracker (live sessions) — snapshot pattern
+// ---------------------------------------------------------------------------
+
+model WorkoutSession {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // nullable: supports ad-hoc workouts not tied to a program day
+  programDayId String?
+  programDay   ProgramDay? @relation(fields: [programDayId], references: [id], onDelete: SetNull)
+
+  status      WorkoutSessionStatus @default(IN_PROGRESS)
+  startedAt   DateTime             @default(now())
+  completedAt DateTime?
+  notes       String?
+
+  exercises SessionExercise[]
+
+  @@index([userId, startedAt])
+  @@index([userId, status])
+}
+
+model SessionExercise {
+  id        String         @id @default(cuid())
+  sessionId String
+  session   WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  exerciseId String
+  exercise   Exercise @relation(fields: [exerciseId], references: [id])
+
+  // snapshot of the template exercise this came from, if any (for "apply to program too")
+  sourceProgramDayExerciseId String?
+  sourceProgramDayExercise   ProgramDayExercise? @relation(fields: [sourceProgramDayExerciseId], references: [id], onDelete: SetNull)
+
+  order         Int
+  action        SessionExerciseAction @default(ORIGINAL)
+  targetSets    Int
+  targetRepsMin Int
+  targetRepsMax Int
+  targetWeight  Decimal? @db.Decimal(6, 2)
+  restSeconds   Int?
+  notes         String?
+
+  sets WorkoutSet[]
+
+  @@index([sessionId])
+  @@index([exerciseId])
+}
+
+model WorkoutSet {
+  id                String          @id @default(cuid())
+  sessionExerciseId String
+  sessionExercise   SessionExercise @relation(fields: [sessionExerciseId], references: [id], onDelete: Cascade)
+
+  setNumber   Int
+  weight      Decimal? @db.Decimal(6, 2)
+  reps        Int?
+  rpe         Decimal? @db.Decimal(3, 1)
+  notes       String?
+  isWarmup    Boolean  @default(false)
+  completed   Boolean  @default(false)
+  completedAt DateTime?
+
+  @@index([sessionExerciseId])
+}
+
+// ---------------------------------------------------------------------------
+// Body weight tracking
+// ---------------------------------------------------------------------------
+
+model BodyWeightEntry {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  date   DateTime @db.Date
+  weight Decimal  @db.Decimal(5, 2)
+  note   String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+model WeightGoal {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  targetWeight Decimal   @db.Decimal(5, 2)
+  targetDate   DateTime? @db.Date
+  createdAt    DateTime  @default(now())
+  achievedAt   DateTime?
+
+  @@index([userId])
+}

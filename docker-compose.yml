@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: gym-tracker-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: gym_tracker
+      POSTGRES_PASSWORD: gym_tracker
+      POSTGRES_DB: gym_tracker
+    ports:
+      # Host port 55432 (not 5432): this machine already runs native Windows
+      # PostgreSQL services on 5432, which would otherwise silently intercept
+      # connections meant for this container.
+      - "55432:5432"
+    volumes:
+      - gym-tracker-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gym_tracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  gym-tracker-postgres-data:
