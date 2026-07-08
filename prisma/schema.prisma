@@ -222,6 +222,9 @@ model WorkoutSession {
   startedAt   DateTime             @default(now())
   completedAt DateTime?
   notes       String?
+  // Backfilled through /progress/add rather than actually tracked live —
+  // startedAt/completedAt don't represent a real elapsed duration.
+  isManual    Boolean              @default(false)
 
   exercises SessionExercise[]
 

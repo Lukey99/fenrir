@@ -15,10 +15,86 @@ function toNumber(value: unknown): number {
   return value === null || value === undefined ? 0 : Number(value);
 }
 
-export const progressService = {
-  async listTrainedExercises(userId: string) {
-    const sets = await workoutStatsRepository.findCompletedSetsForUser(userId);
+/** Sentinel id (not a real cuid) for sessions with no linked program day. */
+export const FREE_SESSIONS_ID = "free";
 
+export const progressService = {
+  /** Level 1 of the progress funnel: one card per program the user has actually trained,
+   * plus a "Séances libres" entry for sessions done outside any program. */
+  async listPrograms(userId: string) {
+    const sets = await workoutStatsRepository.findCompletedSetsWithProgramForUser(userId);
+
+    const byProgram = new Map<
+      string,
+      {
+        id: string;
+        programId: string | null;
+        name: string;
+        sessionIds: Set<string>;
+        exerciseIds: Set<string>;
+        lastTrainedAt: Date;
+      }
+    >();
+
+    for (const set of sets) {
+      const { exerciseId, session } = set.sessionExercise;
+      const program = session.programDay?.program ?? null;
+      const key = program?.id ?? FREE_SESSIONS_ID;
+      const trainedAt = session.completedAt ?? session.startedAt;
+
+      const existing = byProgram.get(key);
+      if (!existing) {
+        byProgram.set(key, {
+          id: key,
+          programId: program?.id ?? null,
+          name: program?.name ?? "Séances libres",
+          sessionIds: new Set([session.id]),
+          exerciseIds: new Set([exerciseId]),
+          lastTrainedAt: trainedAt,
+        });
+      } else {
+        existing.sessionIds.add(session.id);
+        existing.exerciseIds.add(exerciseId);
+        if (trainedAt > existing.lastTrainedAt) existing.lastTrainedAt = trainedAt;
+      }
+    }
+
+    return Array.from(byProgram.values())
+      .map((p) => ({
+        id: p.id,
+        name: p.name,
+        sessionsCount: p.sessionIds.size,
+        exercisesCount: p.exerciseIds.size,
+        lastTrainedAt: p.lastTrainedAt,
+      }))
+      .sort((a, b) => b.lastTrainedAt.getTime() - a.lastTrainedAt.getTime());
+  },
+
+  /** Level 2 of the progress funnel: sessions and exercises trained under one program
+   * (or under `FREE_SESSIONS_ID` for sessions with no linked program). */
+  async getProgramDetail(userId: string, programKey: string) {
+    const sets = await workoutStatsRepository.findCompletedSetsWithProgramForUser(userId);
+
+    const isFree = programKey === FREE_SESSIONS_ID;
+    const relevant = sets.filter((set) => {
+      const programId = set.sessionExercise.session.programDay?.program?.id ?? null;
+      return isFree ? programId === null : programId === programKey;
+    });
+    if (relevant.length === 0) return null;
+
+    const programName = isFree
+      ? "Séances libres"
+      : relevant[0].sessionExercise.session.programDay!.program!.name;
+
+    const byDayType = new Map<
+      string,
+      {
+        dayName: string | null;
+        sessionIds: Set<string>;
+        lastTrainedAt: Date;
+        lastSessionId: string;
+      }
+    >();
     const byExercise = new Map<
       string,
       {
@@ -31,39 +107,69 @@ export const progressService = {
       }
     >();
 
-    for (const set of sets) {
+    for (const set of relevant) {
       const { exerciseId, exercise, session } = set.sessionExercise;
       const weight = toNumber(set.weight);
       const reps = set.reps ?? 0;
       const oneRm = estimate1RM(weight, reps);
+      const trainedAt = session.completedAt ?? session.startedAt;
+      const dayName = session.programDay?.name ?? null;
+      const dayTypeKey = dayName ?? "__free__";
 
-      const existing = byExercise.get(exerciseId);
-      if (!existing) {
+      const dayTypeAgg = byDayType.get(dayTypeKey);
+      if (!dayTypeAgg) {
+        byDayType.set(dayTypeKey, {
+          dayName,
+          sessionIds: new Set([session.id]),
+          lastTrainedAt: trainedAt,
+          lastSessionId: session.id,
+        });
+      } else {
+        dayTypeAgg.sessionIds.add(session.id);
+        if (trainedAt > dayTypeAgg.lastTrainedAt) {
+          dayTypeAgg.lastTrainedAt = trainedAt;
+          dayTypeAgg.lastSessionId = session.id;
+        }
+      }
+
+      const exerciseAgg = byExercise.get(exerciseId);
+      if (!exerciseAgg) {
         byExercise.set(exerciseId, {
           exerciseId,
           name: exercise.name,
           muscleGroup: exercise.muscleGroup as MuscleGroupValue,
-          lastTrainedAt: session.startedAt,
+          lastTrainedAt: trainedAt,
           sessionIds: new Set([session.id]),
           best1RM: oneRm,
         });
       } else {
-        existing.sessionIds.add(session.id);
-        if (session.startedAt > existing.lastTrainedAt) existing.lastTrainedAt = session.startedAt;
-        if (oneRm > existing.best1RM) existing.best1RM = oneRm;
+        exerciseAgg.sessionIds.add(session.id);
+        if (trainedAt > exerciseAgg.lastTrainedAt) exerciseAgg.lastTrainedAt = trainedAt;
+        if (oneRm > exerciseAgg.best1RM) exerciseAgg.best1RM = oneRm;
       }
     }
 
-    return Array.from(byExercise.values())
-      .map((e) => ({
-        exerciseId: e.exerciseId,
-        name: e.name,
-        muscleGroup: e.muscleGroup,
-        lastTrainedAt: e.lastTrainedAt,
-        sessionsCount: e.sessionIds.size,
-        best1RM: Math.round(e.best1RM * 10) / 10,
-      }))
-      .sort((a, b) => b.lastTrainedAt.getTime() - a.lastTrainedAt.getTime());
+    return {
+      programName,
+      sessionTypes: Array.from(byDayType.values())
+        .map((d) => ({
+          dayName: d.dayName,
+          sessionsCount: d.sessionIds.size,
+          lastTrainedAt: d.lastTrainedAt,
+          lastSessionId: d.lastSessionId,
+        }))
+        .sort((a, b) => b.lastTrainedAt.getTime() - a.lastTrainedAt.getTime()),
+      exercises: Array.from(byExercise.values())
+        .map((e) => ({
+          exerciseId: e.exerciseId,
+          name: e.name,
+          muscleGroup: e.muscleGroup,
+          lastTrainedAt: e.lastTrainedAt,
+          sessionsCount: e.sessionIds.size,
+          best1RM: Math.round(e.best1RM * 10) / 10,
+        }))
+        .sort((a, b) => b.lastTrainedAt.getTime() - a.lastTrainedAt.getTime()),
+    };
   },
 
   async getExerciseHistory(userId: string, exerciseId: string, range: ProgressRange) {
@@ -136,6 +242,7 @@ export const progressService = {
         best1RM: Math.round(s.best1RM * 10) / 10,
         volume: Math.round(s.volume),
         avgReps: Math.round((s.repsSum / s.setCount) * 10) / 10,
+        setCount: s.setCount,
       }));
 
     const bestWeight = Math.max(...series.map((s) => s.bestWeight));
@@ -163,7 +270,7 @@ export const progressService = {
         );
       }
     }
-    if (progressionPercent !== null && progressionPercent > 0 && range !== "week") {
+    if (progressionPercent !== null && range !== "week") {
       insights.push(
         `${exercise.name} a progressé de ${progressionPercent}% sur la période sélectionnée.`
       );

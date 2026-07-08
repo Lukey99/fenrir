@@ -35,8 +35,8 @@ export default async function ExerciseProgressPage({
   const colorVar = `var(--muscle-${exercise.muscleGroup.toLowerCase()})`;
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="flex flex-col gap-4 md:h-[calc(100vh-7rem)] md:overflow-hidden">
+      <div className="shrink-0">
         <Button
           variant="ghost"
           size="sm"
@@ -58,14 +58,24 @@ export default async function ExerciseProgressPage({
         </div>
       </div>
 
-      <RangeTabs exerciseId={exerciseId} current={range} />
+      <div className="shrink-0">
+        <RangeTabs exerciseId={exerciseId} current={range} />
+      </div>
 
       {series.length === 0 ? (
         <div className="rounded-xl border border-dashed py-16 text-center text-sm text-muted-foreground">
           Aucune séance sur cette période.
         </div>
       ) : (
-        <ExerciseProgressStats metrics={metrics} series={series} insights={insights} color={colorVar} />
+        <div className="min-h-0 flex-1">
+          <ExerciseProgressStats
+            metrics={metrics}
+            series={series}
+            insights={insights}
+            color={colorVar}
+            compact
+          />
+        </div>
       )}
     </div>
   );

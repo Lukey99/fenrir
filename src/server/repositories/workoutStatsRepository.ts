@@ -12,6 +12,30 @@ const completedSetInclude = {
   },
 } as const;
 
+const completedSetIncludeWithProgram = {
+  sessionExercise: {
+    select: {
+      exerciseId: true,
+      exercise: { select: { id: true, name: true, muscleGroup: true } },
+      session: {
+        select: {
+          id: true,
+          startedAt: true,
+          completedAt: true,
+          programDay: {
+            select: {
+              id: true,
+              name: true,
+              label: true,
+              program: { select: { id: true, name: true } },
+            },
+          },
+        },
+      },
+    },
+  },
+} as const;
+
 export const workoutStatsRepository = {
   /** Every logged (completed, non-warmup) set for a user, across all exercises. */
   findCompletedSetsForUser(userId: string) {
@@ -22,6 +46,19 @@ export const workoutStatsRepository = {
         sessionExercise: { session: { userId, status: { in: [...activeStatuses] } } },
       },
       include: completedSetInclude,
+    });
+  },
+
+  /** Same as findCompletedSetsForUser, but with the source program/day attached —
+   * used to group progress by program (or "séances libres" when there's none). */
+  findCompletedSetsWithProgramForUser(userId: string) {
+    return prisma.workoutSet.findMany({
+      where: {
+        completed: true,
+        isWarmup: false,
+        sessionExercise: { session: { userId, status: { in: [...activeStatuses] } } },
+      },
+      include: completedSetIncludeWithProgram,
     });
   },
 

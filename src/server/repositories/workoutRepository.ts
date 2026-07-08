@@ -6,7 +6,15 @@ const exerciseSelect = {
 } as const;
 
 const fullSessionInclude = {
-  programDay: { select: { id: true, name: true, label: true, programId: true } },
+  programDay: {
+    select: {
+      id: true,
+      name: true,
+      label: true,
+      programId: true,
+      program: { select: { name: true } },
+    },
+  },
   exercises: {
     orderBy: { order: "asc" as const },
     include: { exercise: exerciseSelect, sets: { orderBy: { setNumber: "asc" as const } } },
@@ -114,6 +122,7 @@ export const workoutRepository = {
         status: "COMPLETED",
         startedAt,
         completedAt: startedAt,
+        isManual: true,
         notes,
         exercises: {
           create: exercises.map((ex) => ({
