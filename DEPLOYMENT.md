@@ -17,10 +17,18 @@ simple pour un projet Prisma).
 ### Option B — Supabase
 
 1. Crée un projet sur [supabase.com](https://supabase.com).
-2. Va dans Project Settings → Database → Connection string → **URI**.
-3. Utilise la variante "Connection pooling" (port 6543) pour `DATABASE_URL` en
-   production — Vercel est serverless, chaque requête peut ouvrir une nouvelle
-   connexion, et le pooler évite d'épuiser les connexions Postgres.
+2. Ouvre le panneau **"Connect"** (en haut du dashboard) → onglet **ORMs** →
+   **Prisma** : Supabase donne directement les deux connection strings dont on
+   a besoin (voir ci-dessous).
+3. Récupère **les deux** variantes :
+   - **"Transaction pooler"** (port `6543`) → ce sera `DATABASE_URL`.
+   - **"Direct connection"** (port `5432`) → ce sera `DIRECT_URL`.
+
+   ⚠️ Ne pas utiliser uniquement la connexion poolée : `prisma migrate deploy`
+   (lancé pendant le build) a besoin d'un verrou (advisory lock) que pgbouncer
+   en mode "transaction" ne supporte pas — avec seulement `DATABASE_URL`
+   poolée, les migrations restent bloquées indéfiniment pendant le build
+   Vercel (symptôme : le déploiement ne se termine jamais).
 
 ## 2. Variables d'environnement
 
@@ -28,7 +36,8 @@ Dans Vercel (Project Settings → Environment Variables), configure :
 
 | Variable | Valeur |
 |---|---|
-| `DATABASE_URL` | La connection string Neon/Supabase de l'étape 1 |
+| `DATABASE_URL` | Connection string **poolée** (Neon: défaut · Supabase: "Transaction pooler", port 6543) — utilisée par l'app à l'exécution |
+| `DIRECT_URL` | Connection string **directe** (Neon: optionnel, même valeur que `DATABASE_URL` suffit · Supabase: "Direct connection", port 5432) — utilisée uniquement par `prisma migrate deploy` pendant le build |
 | `AUTH_SECRET` | Génère avec `npx auth secret` (une valeur différente de celle du `.env` local) |
 | `AUTH_URL` | L'URL de production, ex. `https://ton-app.vercel.app` (Auth.js la déduit normalement tout seul sur Vercel via `VERCEL_URL`, mais la définir explicitement évite des surprises) |
 
@@ -36,9 +45,9 @@ Dans Vercel (Project Settings → Environment Variables), configure :
 
 Le script `build` (`package.json`) exécute automatiquement
 `prisma migrate deploy` avant `next build` — donc **chaque déploiement Vercel
-applique les migrations en attente** sur la base configurée dans
-`DATABASE_URL`. Aucune étape manuelle n'est nécessaire pour les déploiements
-suivants.
+applique les migrations en attente**, via la connexion directe configurée
+dans `DIRECT_URL` (ou `DATABASE_URL` si `DIRECT_URL` n'est pas défini).
+Aucune étape manuelle n'est nécessaire pour les déploiements suivants.
 
 Pour le tout premier déploiement (base vide), il faut aussi seeder les
 exercices intégrés. Depuis ta machine, avec `DATABASE_URL` pointé vers la base

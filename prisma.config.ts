@@ -10,6 +10,11 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // Migrations need a direct (non-pooled) connection — pgbouncer's transaction-mode
+    // pooling (used by DATABASE_URL in production) doesn't support the advisory lock
+    // Prisma Migrate uses to coordinate, which makes `migrate deploy` hang. Locally
+    // there's no pooler in front of Postgres, so DATABASE_URL is already a direct
+    // connection and this just falls back to it.
+    url: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"],
   },
 });
