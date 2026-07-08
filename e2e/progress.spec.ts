@@ -70,7 +70,11 @@ test.describe("Ajout manuel d'une séance passée", () => {
     page,
   }) => {
     await page.goto("/progress");
-    await expect(page.getByText("Pas encore d'historique")).toBeVisible();
+    // .first(): Next.js's prefetch/segment cache can keep a hidden, inert
+    // prerendered copy of the route in the DOM (from the sidebar Link
+    // prefetching /progress) alongside the real one — same pattern as
+    // elsewhere in this suite for text that isn't guaranteed unique in the DOM.
+    await expect(page.getByText("Pas encore d'historique").first()).toBeVisible();
 
     await page.getByRole("button", { name: "Ajouter une séance passée" }).click();
     await expect(page).toHaveURL(/\/progress\/add/);
