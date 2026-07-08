@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/server/validators/auth";
 import { checkRateLimit, requestIp } from "@/lib/rate-limit";
+import { normalizeEmail } from "@/lib/utils";
 
 export async function POST(request: Request) {
   const { allowed, retryAfterSeconds } = checkRateLimit(`register:${requestIp(request)}`, 5, 60_000);
@@ -24,7 +25,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const { name, email, password } = parsed.data;
+  const { name, password } = parsed.data;
+  const email = normalizeEmail(parsed.data.email);
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {

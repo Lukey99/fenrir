@@ -31,6 +31,15 @@ export function decimalNumber(value: string | number): number {
 }
 
 /**
+ * Emails are looked up case-sensitively by default (Prisma does an exact match),
+ * so without normalizing, "User@Example.com" and "user@example.com" would be
+ * treated as different accounts — normalize before every lookup and before storage.
+ */
+export function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase()
+}
+
+/**
  * For react-hook-form `setValueAs` on optional string inputs (e.g. a `type="date"`
  * field validated with a zod `.regex()`). An empty input yields `""`, which a
  * zod `.optional()` does NOT treat as absent — only `undefined` is — so the

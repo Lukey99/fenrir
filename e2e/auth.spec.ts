@@ -60,4 +60,41 @@ test.describe("Authentification", () => {
     await page.getByRole("button", { name: "Créer mon compte" }).click();
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
   });
+
+  test("l'e-mail n'est pas sensible à la casse (inscription et connexion)", async ({ page }) => {
+    const email = uniqueEmail("case");
+    const mixedCaseEmail = email
+      .split("")
+      .map((c, i) => (i % 2 === 0 ? c.toUpperCase() : c))
+      .join("");
+
+    await page.goto("/register");
+    await page.getByLabel("Nom").fill("Casse Test");
+    await page.getByLabel("E-mail").fill(mixedCaseEmail);
+    await page.getByLabel("Mot de passe").fill("Passw0rd!2345");
+    await page.getByRole("button", { name: "Créer mon compte" }).click();
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
+
+    await page.getByRole("button", { name: "Menu du compte" }).click();
+    await page.getByRole("menuitem", { name: "Se déconnecter" }).click();
+    await expect(page).toHaveURL(/\/login/, { timeout: 10_000 });
+
+    // Se reconnecte avec l'e-mail tout en minuscules : doit trouver le même compte.
+    await page.getByLabel("E-mail").fill(email.toLowerCase());
+    await page.getByLabel("Mot de passe").fill("Passw0rd!2345");
+    await page.getByRole("button", { name: "Se connecter" }).click();
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
+
+    // Une réinscription avec une autre casse du même e-mail est refusée (même compte).
+    await page.getByRole("button", { name: "Menu du compte" }).click();
+    await page.getByRole("menuitem", { name: "Se déconnecter" }).click();
+    await expect(page).toHaveURL(/\/login/, { timeout: 10_000 });
+
+    await page.goto("/register");
+    await page.getByLabel("Nom").fill("Casse Test 2");
+    await page.getByLabel("E-mail").fill(email.toUpperCase());
+    await page.getByLabel("Mot de passe").fill("Autrepass123!");
+    await page.getByRole("button", { name: "Créer mon compte" }).click();
+    await expect(page.getByText(/existe déjà/i)).toBeVisible();
+  });
 });

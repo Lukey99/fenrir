@@ -6,6 +6,8 @@ export const registerSchema = z.object({
   password: z
     .string()
     .min(8, "Le mot de passe doit contenir au moins 8 caractères.")
+    // bcrypt silently truncates and ignores anything past 72 bytes.
+    .max(72, "Le mot de passe ne doit pas dépasser 72 caractères.")
     .regex(/[a-zA-Z]/, "Le mot de passe doit contenir au moins une lettre.")
     .regex(/[0-9]/, "Le mot de passe doit contenir au moins un chiffre."),
 });
@@ -14,7 +16,7 @@ export type RegisterInput = z.infer<typeof registerSchema>;
 
 export const loginSchema = z.object({
   email: z.email("Adresse e-mail invalide."),
-  password: z.string().min(1, "Mot de passe requis."),
+  password: z.string().min(1, "Mot de passe requis.").max(72, "Mot de passe invalide."),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;

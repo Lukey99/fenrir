@@ -43,7 +43,11 @@ export function computeStreak(trainingDates: Date[]): number {
   const uniqueDays = Array.from(new Set(trainingDates.map((d) => dateKey(d)))).sort().reverse();
   if (uniqueDays.length === 0) return 0;
 
-  const today = startOfDay(new Date());
+  // Both sides must round-trip through the same UTC-based dateKey — mixing a
+  // UTC-midnight reparse (uniqueDays) with startOfDay's LOCAL midnight here would
+  // shift the day boundary by the timezone offset on any non-UTC machine, and
+  // could round `gapFromToday` to the wrong day right around local midnight.
+  const today = new Date(dateKey(new Date()));
   const mostRecent = new Date(uniqueDays[0]);
   const gapFromToday = Math.round((today.getTime() - mostRecent.getTime()) / 86_400_000);
   if (gapFromToday > 1) return 0;

@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/server/validators/auth";
 import { checkRateLimit, requestIp } from "@/lib/rate-limit";
+import { normalizeEmail } from "@/lib/utils";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -26,7 +27,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const parsed = loginSchema.safeParse(rawCredentials);
         if (!parsed.success) return null;
 
-        const { email, password } = parsed.data;
+        const { password } = parsed.data;
+        const email = normalizeEmail(parsed.data.email);
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user?.passwordHash) return null;
 

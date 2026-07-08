@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Search, Sparkles } from "lucide-react";
+import { Search, Sparkles, Pencil, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import type { Exercise } from "@/generated/prisma/client";
 import {
@@ -16,12 +17,44 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { CreateExerciseDialog } from "@/components/exercises/create-exercise-dialog";
+import { EditExerciseDialog } from "@/components/exercises/edit-exercise-dialog";
 
 export function ExercisesBrowser({ initialExercises }: { initialExercises: Exercise[] }) {
   const [exercises, setExercises] = useState(initialExercises);
   const [search, setSearch] = useState("");
   const [activeGroup, setActiveGroup] = useState<MuscleGroupValue | null>(null);
+  const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
+  const [deletingExercise, setDeletingExercise] = useState<Exercise | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete() {
+    if (!deletingExercise) return;
+    setDeleting(true);
+    const response = await fetch(`/api/exercises/${deletingExercise.id}`, { method: "DELETE" });
+    setDeleting(false);
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => null);
+      toast.error(data?.error ?? "Impossible de supprimer cet exercice.");
+      setDeletingExercise(null);
+      return;
+    }
+
+    setExercises((prev) => prev.filter((e) => e.id !== deletingExercise.id));
+    toast.success("Exercice supprimé.");
+    setDeletingExercise(null);
+  }
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -142,9 +175,25 @@ export function ExercisesBrowser({ initialExercises }: { initialExercises: Exerc
                         )}
                       </div>
                       {exercise.isCustom && (
-                        <Badge className="shrink-0 border-transparent bg-brand/12 text-brand">
-                          Perso
-                        </Badge>
+                        <div className="flex shrink-0 items-center gap-1">
+                          <Badge className="border-transparent bg-brand/12 text-brand">Perso</Badge>
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            aria-label="Modifier l'exercice"
+                            onClick={() => setEditingExercise(exercise)}
+                          >
+                            <Pencil className="size-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            aria-label="Supprimer l'exercice"
+                            onClick={() => setDeletingExercise(exercise)}
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                        </div>
                       )}
                     </motion.div>
                   ))}
@@ -154,6 +203,39 @@ export function ExercisesBrowser({ initialExercises }: { initialExercises: Exerc
           })}
         </div>
       )}
+
+      {editingExercise && (
+        <EditExerciseDialog
+          exercise={editingExercise}
+          onOpenChange={(open) => !open && setEditingExercise(null)}
+          onUpdated={(updated) => {
+            setExercises((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
+            setEditingExercise(null);
+          }}
+        />
+      )}
+
+      <AlertDialog open={Boolean(deletingExercise)} onOpenChange={(open) => !open && setDeletingExercise(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer &quot;{deletingExercise?.name}&quot; ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action est irréversible. Un exercice utilisé dans un programme ou une séance ne
+              peut pas être supprimé.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive/10 text-destructive hover:bg-destructive/20"
+              onClick={handleDelete}
+              disabled={deleting}
+            >
+              {deleting ? "..." : "Supprimer"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

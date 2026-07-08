@@ -39,9 +39,9 @@ const programSchema = z.object({
       order: z.number().int(),
       name: z.string().min(1),
       label: z.string().nullable().optional(),
-      exercises: z.array(dayExerciseSchema),
+      exercises: z.array(dayExerciseSchema).max(50),
     })
-  ),
+  ).max(30),
 });
 
 const setSchema = z.object({
@@ -64,7 +64,7 @@ const sessionExerciseSchema = z.object({
   targetWeight: z.number().nullable().optional(),
   restSeconds: z.number().int().nullable().optional(),
   notes: z.string().nullable().optional(),
-  sets: z.array(setSchema),
+  sets: z.array(setSchema).max(50),
 });
 
 const workoutSessionSchema = z.object({
@@ -72,7 +72,7 @@ const workoutSessionSchema = z.object({
   completedAt: z.string().nullable().optional(),
   status: z.enum(["IN_PROGRESS", "COMPLETED", "ABANDONED"]).optional(),
   notes: z.string().nullable().optional(),
-  exercises: z.array(sessionExerciseSchema),
+  exercises: z.array(sessionExerciseSchema).max(50),
 });
 
 export const exportDataSchema = z.object({
@@ -82,22 +82,22 @@ export const exportDataSchema = z.object({
     unitPreference: z.enum(["KG", "LBS"]).optional(),
     heightCm: z.number().nullable().optional(),
   }),
-  exercises: z.array(exerciseRefSchema.extend({ equipment: z.string().nullable().optional() })),
-  programs: z.array(programSchema),
-  workoutSessions: z.array(workoutSessionSchema),
+  exercises: z.array(exerciseRefSchema.extend({ equipment: z.string().nullable().optional() })).max(500),
+  programs: z.array(programSchema).max(100),
+  workoutSessions: z.array(workoutSessionSchema).max(5000),
   bodyWeightEntries: z.array(
     z.object({
       date: z.string(),
       weight: z.number(),
       note: z.string().nullable().optional(),
     })
-  ),
+  ).max(3650),
   weightGoals: z.array(
     z.object({
       targetWeight: z.number(),
       targetDate: z.string().nullable().optional(),
       achievedAt: z.string().nullable().optional(),
     })
-  ),
+  ).max(50),
 });
 export type ExportData = z.infer<typeof exportDataSchema>;
