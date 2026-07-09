@@ -13,9 +13,15 @@ export const updateProgramSchema = z.object({
 });
 export type UpdateProgramInput = z.infer<typeof updateProgramSchema>;
 
+const preferredWeekdaysSchema = z
+  .array(z.number().int().min(0).max(6))
+  .max(7)
+  .transform((arr) => Array.from(new Set(arr)).sort((a, b) => a - b));
+
 export const createProgramDaySchema = z.object({
   name: z.string().trim().min(1, "Le nom du jour est requis.").max(60),
   label: z.string().trim().max(40).optional(),
+  preferredWeekdays: preferredWeekdaysSchema.optional(),
 });
 export type CreateProgramDayInput = z.infer<typeof createProgramDaySchema>;
 
@@ -23,6 +29,7 @@ export const updateProgramDaySchema = z.object({
   name: z.string().trim().min(1).max(60).optional(),
   label: z.string().trim().max(40).optional(),
   order: z.number().int().min(0).optional(),
+  preferredWeekdays: preferredWeekdaysSchema.optional(),
 });
 export type UpdateProgramDayInput = z.infer<typeof updateProgramDaySchema>;
 

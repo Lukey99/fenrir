@@ -38,6 +38,7 @@ export default async function ProgramDetailPage({
       order: day.order,
       name: day.name,
       label: day.label,
+      preferredWeekdays: day.preferredWeekdays,
       exercises: day.exercises.map((exercise) => ({
         id: exercise.id,
         order: exercise.order,

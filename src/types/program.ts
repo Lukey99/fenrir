@@ -26,6 +26,7 @@ export type ProgramDayDTO = {
   order: number;
   name: string;
   label: string | null;
+  preferredWeekdays: number[];
   exercises: ProgramDayExerciseDTO[];
 };
 

@@ -49,3 +49,16 @@ export function optionalString(value: string): string | undefined {
   const trimmed = value.trim()
   return trimmed === "" ? undefined : trimmed
 }
+
+/** Avatar fallback initials — from the name if present, else the email's first letter. */
+export function initials(name?: string | null, email?: string | null): string {
+  if (name) {
+    return name
+      .split(" ")
+      .map((part) => part[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase()
+  }
+  return email?.[0]?.toUpperCase() ?? "?"
+}

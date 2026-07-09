@@ -51,9 +51,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token.id) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },
-          select: { unitPreference: true },
+          select: { unitPreference: true, image: true },
         });
         token.unitPreference = dbUser?.unitPreference ?? "KG";
+        token.image = dbUser?.image ?? null;
       }
       return token;
     },
@@ -61,6 +62,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (session.user) {
         session.user.id = token.id as string;
         session.user.unitPreference = (token.unitPreference as "KG" | "LBS" | undefined) ?? "KG";
+        session.user.image = (token.image as string | null | undefined) ?? null;
       }
       return session;
     },

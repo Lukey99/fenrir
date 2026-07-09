@@ -76,6 +76,7 @@ export const programRepository = {
             order: day.order,
             name: day.name,
             label: day.label,
+            preferredWeekdays: day.preferredWeekdays,
             exercises: {
               create: day.exercises.map((exercise) => ({
                 order: exercise.order,
@@ -116,12 +117,27 @@ export const programRepository = {
         order: (last?.order ?? -1) + 1,
         name: data.name,
         label: data.label,
+        preferredWeekdays: data.preferredWeekdays ?? [],
       },
     });
   },
 
   updateDay(dayId: string, data: UpdateProgramDayInput) {
     return prisma.programDay.update({ where: { id: dayId }, data });
+  },
+
+  /** Program days (across the user's active programs) usually trained on this weekday. */
+  findTodaysSuggestedDaysForUser(userId: string, weekday: number) {
+    return prisma.programDay.findMany({
+      where: { preferredWeekdays: { has: weekday }, program: { userId, status: "ACTIVE" } },
+      select: {
+        id: true,
+        name: true,
+        label: true,
+        program: { select: { id: true, name: true } },
+      },
+      orderBy: { order: "asc" },
+    });
   },
 
   deleteDay(dayId: string) {

@@ -178,6 +178,9 @@ model ProgramDay {
   order     Int
   name      String // e.g. "Push Day A"
   label     String? // e.g. "Push", "Upper", "Custom"
+  // Days of the week this session type is usually trained on, used to suggest
+  // "today's session" on the dashboard. 0=Sunday..6=Saturday (Date.getDay()).
+  preferredWeekdays Int[] @default([])
 
   exercises       ProgramDayExercise[]
   workoutSessions WorkoutSession[]

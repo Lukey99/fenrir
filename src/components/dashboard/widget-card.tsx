@@ -11,6 +11,8 @@ export function WidgetCard({
   color = "bg-brand/12 text-brand",
   index = 0,
   className,
+  cardClassName,
+  contentClassName,
   children,
 }: {
   title: string;
@@ -18,7 +20,11 @@ export function WidgetCard({
   /** Literal Tailwind classes, e.g. "bg-muscle-chest/12 text-muscle-chest" */
   color?: string;
   index?: number;
+  /** Applied to the outer motion wrapper — grid spanning (e.g. "lg:col-span-2"). */
   className?: string;
+  /** Applied to the inner Card itself — e.g. rounding overrides. */
+  cardClassName?: string;
+  contentClassName?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -27,9 +33,14 @@ export function WidgetCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: index * 0.04, ease: "easeOut" }}
       whileHover={{ y: -3 }}
-      className={cn(className)}
+      className={cn("h-full", className)}
     >
-      <Card className="group h-full gap-3 py-5 transition-shadow duration-300 hover:shadow-lg hover:shadow-brand/10 hover:ring-brand/20">
+      <Card
+        className={cn(
+          "group h-full gap-3 py-5 transition-shadow duration-300 hover:shadow-lg hover:shadow-brand/10 hover:ring-brand/20",
+          cardClassName
+        )}
+      >
         <CardHeader className="flex flex-row items-center justify-between px-5">
           <CardTitle className="text-sm font-medium text-muted-foreground">
             {title}
@@ -45,7 +56,7 @@ export function WidgetCard({
             </span>
           )}
         </CardHeader>
-        <CardContent className="px-5">{children}</CardContent>
+        <CardContent className={cn("px-5", contentClassName)}>{children}</CardContent>
       </Card>
     </motion.div>
   );

@@ -1,22 +1,30 @@
-import type { MuscleGroupValue } from "@/lib/constants";
+export type DashboardActivitySession = {
+  sessionId: string;
+  dayName: string | null;
+  exercises: string[];
+  totalSets: number;
+};
 
 export type DashboardStatsDTO = {
-  streak: number;
-  totalSessions: number;
-  volumeThisWeek: number;
-  volumeThisMonth: number;
-  recentPRs: { exerciseName: string; weight: number; reps: number; date: string }[];
-  muscleGroups: { group: MuscleGroupValue; count: number }[];
-  consistency: number;
-  sessionsThisMonth: number;
-  recentActivity: {
-    id: string;
+  /** Last 14 days, oldest first. */
+  activity: {
     date: string;
-    name: string;
-    status: string;
-    exerciseCount: number;
-    volume: number;
+    weekday: number;
+    trained: boolean;
+    sessions: DashboardActivitySession[];
   }[];
-  insights: string[];
-  latestBodyWeight: number | null;
+  profile: {
+    name: string | null;
+    image: string | null;
+    heightCm: number | null;
+    latestBodyWeight: number | null;
+    totalSessions: number;
+  };
+  suggestedSessions: {
+    programDayId: string;
+    programName: string;
+    dayName: string;
+    label: string | null;
+  }[];
+  recentPRs: { exerciseId: string; exerciseName: string; weight: number; reps: number; date: string }[];
 };

@@ -32,6 +32,10 @@ export const settingsService = {
     await userRepository.updateUnitPreference(userId, unitPreference);
   },
 
+  async updatePhoto(userId: string, image: string) {
+    await userRepository.updateImage(userId, image);
+  },
+
   async changePassword(userId: string, currentPassword: string, newPassword: string) {
     const user = await userRepository.findById(userId);
     if (!user?.passwordHash) throw new NotFoundError("Utilisateur introuvable.");

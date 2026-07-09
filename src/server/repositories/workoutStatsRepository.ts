@@ -113,24 +113,28 @@ export const workoutStatsRepository = {
     return byExercise;
   },
 
-  findSessionsForUser(userId: string) {
+  countCompletedSessionsForUser(userId: string) {
+    return prisma.workoutSession.count({ where: { userId, status: "COMPLETED" } });
+  },
+
+  /** Session summaries since a given date — used to build the dashboard's activity strip
+   * (day-by-day trained/not, plus a per-session breakdown for the hover popover). */
+  findSessionSummariesSince(userId: string, since: Date) {
     return prisma.workoutSession.findMany({
-      where: { userId, status: { in: [...activeStatuses] } },
+      where: { userId, status: { in: [...activeStatuses] }, startedAt: { gte: since } },
       select: {
         id: true,
         startedAt: true,
-        completedAt: true,
-        status: true,
-        programDay: { select: { name: true, label: true } },
+        programDay: { select: { name: true } },
         exercises: {
           select: {
             action: true,
             exercise: { select: { name: true } },
-            sets: { where: { completed: true, isWarmup: false }, select: { weight: true, reps: true } },
+            sets: { where: { completed: true, isWarmup: false }, select: { id: true } },
           },
         },
       },
-      orderBy: { startedAt: "desc" },
+      orderBy: { startedAt: "asc" },
     });
   },
 };

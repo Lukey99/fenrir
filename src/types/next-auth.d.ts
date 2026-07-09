@@ -13,5 +13,6 @@ declare module "next-auth/jwt" {
   interface JWT {
     id?: string;
     unitPreference?: "KG" | "LBS";
+    image?: string | null;
   }
 }
