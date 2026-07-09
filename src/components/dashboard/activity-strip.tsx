@@ -69,12 +69,12 @@ export function ActivityStrip({
       <div
         role="img"
         aria-label={`${trainedCount} jour${trainedCount > 1 ? "s" : ""} entraîné${trainedCount > 1 ? "s" : ""} sur les 14 derniers`}
-        className="flex flex-nowrap gap-2 overflow-x-auto pb-1 sm:gap-3 md:grid md:grid-cols-7 md:flex-wrap md:overflow-visible"
+        className="grid grid-cols-7 justify-items-center gap-y-3"
       >
         {activity.map((day) =>
           day.trained ? (
             <Popover key={day.date}>
-              <div className="flex shrink-0 flex-col items-center gap-1.5">
+              <div className="flex flex-col items-center gap-1.5">
                 <PopoverTrigger
                   openOnHover
                   delay={150}
@@ -94,7 +94,7 @@ export function ActivityStrip({
               </PopoverContent>
             </Popover>
           ) : (
-            <div key={day.date} className="flex shrink-0 flex-col items-center gap-1.5">
+            <div key={day.date} className="flex flex-col items-center gap-1.5">
               <div
                 title={formatFullDate(day.date)}
                 className={cn(
