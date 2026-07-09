@@ -173,14 +173,19 @@ export const progressService = {
   },
 
   async getExerciseHistory(userId: string, exerciseId: string, range: ProgressRange) {
-    const sets = await workoutStatsRepository.findCompletedSetsForExercise(userId, exerciseId);
-    if (sets.length === 0) return null;
-
-    const exercise = sets[0].sessionExercise.exercise;
     const cutoffDays = rangeDays[range];
     const cutoff = cutoffDays ? daysAgo(cutoffDays) : null;
 
-    const filtered = sets.filter((s) => !cutoff || s.sessionExercise.session.startedAt >= cutoff);
+    // The range filter (week/month/year) is applied by the DB query itself —
+    // only the "has this user ever trained this exercise at all" check needs
+    // the full, unbounded history, and that's a single cheap row, not a scan.
+    const [anySet, filtered] = await Promise.all([
+      workoutStatsRepository.findAnyCompletedSetForExercise(userId, exerciseId),
+      workoutStatsRepository.findCompletedSetsForExercise(userId, exerciseId, cutoff ?? undefined),
+    ]);
+    if (!anySet) return null;
+
+    const exercise = anySet.sessionExercise.exercise;
     if (filtered.length === 0) {
       return {
         exercise,

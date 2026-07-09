@@ -1,5 +1,3 @@
-"use client";
-
 import { User, Activity, Dumbbell, Trophy } from "lucide-react";
 
 import { WidgetCard } from "@/components/dashboard/widget-card";
@@ -49,7 +47,7 @@ export function DashboardOverview({
         <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 md:auto-rows-fr md:grid-cols-[3fr_2fr]">
           <WidgetCard
             title="Activité (14 jours)"
-            icon={Activity}
+            icon={<Activity className="size-3.5" />}
             color="bg-muscle-quadriceps/12 text-muscle-quadriceps"
             index={0}
             className="order-2 md:order-1"
@@ -62,7 +60,7 @@ export function DashboardOverview({
           <div className="order-1 flex min-h-0 flex-col gap-4 md:order-2 md:h-full md:flex-row">
             <WidgetCard
               title="Mon profil"
-              icon={User}
+              icon={<User className="size-3.5" />}
               color="bg-brand/12 text-brand"
               index={1}
               className="order-1 h-auto flex-none md:order-1 md:h-full md:min-w-0 md:flex-1"
@@ -73,7 +71,7 @@ export function DashboardOverview({
 
             <WidgetCard
               title="Séance du jour"
-              icon={Dumbbell}
+              icon={<Dumbbell className="size-3.5" />}
               color="bg-muscle-back/12 text-muscle-back"
               index={2}
               className="order-2 min-h-0 flex-1 md:order-2 md:min-w-0"
@@ -87,7 +85,7 @@ export function DashboardOverview({
 
         <WidgetCard
           title="Records récents"
-          icon={Trophy}
+          icon={<Trophy className="size-3.5" />}
           color="bg-muscle-forearms/12 text-muscle-forearms"
           index={3}
           className="order-3 min-h-0 flex-1"

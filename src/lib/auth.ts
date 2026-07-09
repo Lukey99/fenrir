@@ -1,3 +1,4 @@
+import { cache } from "react";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
@@ -8,7 +9,12 @@ import { loginSchema } from "@/server/validators/auth";
 import { checkRateLimit, requestIp } from "@/lib/rate-limit";
 import { normalizeEmail } from "@/lib/utils";
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+const {
+  handlers,
+  auth: uncachedAuth,
+  signIn,
+  signOut,
+} = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   pages: {
@@ -29,13 +35,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const { password } = parsed.data;
         const email = normalizeEmail(parsed.data.email);
-        const user = await prisma.user.findUnique({ where: { email } });
+        const user = await prisma.user.findUnique({
+          where: { email },
+          select: { id: true, name: true, email: true, passwordHash: true },
+        });
         if (!user?.passwordHash) return null;
 
         const isValid = await bcrypt.compare(password, user.passwordHash);
         if (!isValid) return null;
 
-        return { id: user.id, name: user.name, email: user.email, image: user.image };
+        return { id: user.id, name: user.name, email: user.email };
       },
     }),
   ],
@@ -51,10 +60,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token.id) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },
-          select: { unitPreference: true, image: true },
+          select: { unitPreference: true },
         });
         token.unitPreference = dbUser?.unitPreference ?? "KG";
-        token.image = dbUser?.image ?? null;
       }
       return token;
     },
@@ -62,9 +70,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (session.user) {
         session.user.id = token.id as string;
         session.user.unitPreference = (token.unitPreference as "KG" | "LBS" | undefined) ?? "KG";
-        session.user.image = (token.image as string | null | undefined) ?? null;
       }
       return session;
     },
   },
 });
+
+// Deduped per-request: without this, every server component/route calling
+// auth() independently re-triggers the jwt callback's DB round-trip above —
+// this app has 13+ separate auth() call sites across layouts and pages.
+export const auth = cache(uncachedAuth);
+export { handlers, signIn, signOut };

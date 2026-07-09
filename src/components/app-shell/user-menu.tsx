@@ -4,7 +4,7 @@ import { signOut } from "next-auth/react";
 import { LogOut, Settings, User as UserIcon } from "lucide-react";
 import Link from "next/link";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,11 +19,9 @@ import { initials } from "@/lib/utils";
 export function UserMenu({
   name,
   email,
-  image,
 }: {
   name?: string | null;
   email?: string | null;
-  image?: string | null;
 }) {
   return (
     <DropdownMenu>
@@ -32,7 +30,6 @@ export function UserMenu({
         aria-label="Menu du compte"
       >
         <Avatar className="size-8 ring-2 ring-transparent transition-all duration-200 hover:ring-brand/30">
-          {image && <AvatarImage src={image} alt="" />}
           <AvatarFallback className="bg-brand text-brand-foreground text-xs">
             {initials(name, email)}
           </AvatarFallback>

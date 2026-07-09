@@ -18,7 +18,6 @@ export const settingsService = {
       id: user.id,
       name: user.name,
       email: user.email,
-      image: user.image,
       unitPreference: user.unitPreference,
       heightCm: user.heightCm,
     };
@@ -30,10 +29,6 @@ export const settingsService = {
 
   async updateUnitPreference(userId: string, unitPreference: "KG" | "LBS") {
     await userRepository.updateUnitPreference(userId, unitPreference);
-  },
-
-  async updatePhoto(userId: string, image: string) {
-    await userRepository.updateImage(userId, image);
   },
 
   async changePassword(userId: string, currentPassword: string, newPassword: string) {

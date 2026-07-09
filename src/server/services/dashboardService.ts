@@ -2,7 +2,7 @@ import { workoutStatsRepository } from "@/server/repositories/workoutStatsReposi
 import { bodyWeightRepository } from "@/server/repositories/bodyWeightRepository";
 import { programRepository } from "@/server/repositories/programRepository";
 import { settingsService } from "@/server/services/settingsService";
-import { estimate1RM, dateKey, daysAgo } from "@/server/services/analytics";
+import { dateKey, daysAgo, detectPRs, selectRecentPRs } from "@/server/services/analytics";
 
 function toNumber(value: unknown): number {
   return value === null || value === undefined ? 0 : Number(value);
@@ -20,35 +20,19 @@ export const dashboardService = {
         programRepository.findTodaysSuggestedDaysForUser(userId, new Date().getDay()),
       ]);
 
-    // Track running best 1RM per exercise, in chronological order, to detect PRs.
-    const sortedSets = [...sets].sort(
-      (a, b) => a.sessionExercise.session.startedAt.getTime() - b.sessionExercise.session.startedAt.getTime()
+    const prs = detectPRs(
+      sets.map((set) => ({
+        exerciseId: set.sessionExercise.exerciseId,
+        exerciseName: set.sessionExercise.exercise.name,
+        weight: toNumber(set.weight),
+        reps: set.reps ?? 0,
+        date: set.sessionExercise.session.startedAt,
+      }))
     );
-    const bestByExercise = new Map<string, number>();
-    const prs: { exerciseId: string; exerciseName: string; weight: number; reps: number; date: Date }[] = [];
-
-    for (const set of sortedSets) {
-      const date = set.sessionExercise.session.startedAt;
-      const weight = toNumber(set.weight);
-      const reps = set.reps ?? 0;
-      const oneRm = estimate1RM(weight, reps);
-      const exerciseId = set.sessionExercise.exerciseId;
-      const best = bestByExercise.get(exerciseId) ?? 0;
-
-      if (oneRm > best) {
-        bestByExercise.set(exerciseId, oneRm);
-        if (best > 0) {
-          prs.push({ exerciseId, exerciseName: set.sessionExercise.exercise.name, weight, reps, date });
-        }
-      }
-    }
 
     // A dedicated table reads sparse at 5 rows over 30 days for most training
     // frequencies — a wider window/count gives it a fuller body.
-    const recentPRs = prs
-      .filter((pr) => pr.date >= daysAgo(90))
-      .sort((a, b) => b.date.getTime() - a.date.getTime())
-      .slice(0, 10);
+    const recentPRs = selectRecentPRs(prs, 90, 10);
 
     const sessionsByDay = new Map<
       string,
@@ -102,7 +86,6 @@ export const dashboardService = {
       activity,
       profile: {
         name: profile.name,
-        image: profile.image,
         heightCm: profile.heightCm,
         latestBodyWeight: latestBodyWeightEntry ? toNumber(latestBodyWeightEntry.weight) : null,
         totalSessions,

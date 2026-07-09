@@ -1,13 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function WidgetCard({
   title,
-  icon: Icon,
+  icon,
   color = "bg-brand/12 text-brand",
   index = 0,
   className,
@@ -16,7 +15,11 @@ export function WidgetCard({
   children,
 }: {
   title: string;
-  icon?: LucideIcon;
+  /** A rendered icon element (e.g. `<Activity className="size-3.5" />`), not a
+   * component reference — this file is a client component, but its parent
+   * (dashboard-overview.tsx) is a server component, and passing a bare
+   * component reference across that boundary isn't serializable. */
+  icon?: React.ReactNode;
   /** Literal Tailwind classes, e.g. "bg-muscle-chest/12 text-muscle-chest" */
   color?: string;
   index?: number;
@@ -45,14 +48,14 @@ export function WidgetCard({
           <CardTitle className="text-sm font-medium text-muted-foreground">
             {title}
           </CardTitle>
-          {Icon && (
+          {icon && (
             <span
               className={cn(
                 "flex size-7 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6",
                 color
               )}
             >
-              <Icon className="size-3.5" />
+              {icon}
             </span>
           )}
         </CardHeader>

@@ -13,7 +13,6 @@ export type SettingsProfile = {
   id: string;
   name: string | null;
   email: string | null;
-  image: string | null;
   unitPreference: WeightUnit;
   heightCm: number | null;
 };

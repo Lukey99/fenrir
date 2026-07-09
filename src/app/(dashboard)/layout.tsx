@@ -33,7 +33,7 @@ export default async function DashboardLayout({
           <div className="flex-1" />
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <UserMenu name={session.user.name} email={session.user.email} image={session.user.image} />
+            <UserMenu name={session.user.name} email={session.user.email} />
           </div>
         </header>
         <main id="main-content" className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-6">

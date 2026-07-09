@@ -62,17 +62,39 @@ export const workoutStatsRepository = {
     });
   },
 
-  findCompletedSetsForExercise(userId: string, exerciseId: string) {
+  /** `since` pushes the range filter (week/month/year) down to the DB instead
+   * of fetching the exercise's entire history and filtering it in JS. */
+  findCompletedSetsForExercise(userId: string, exerciseId: string, since?: Date) {
     return prisma.workoutSet.findMany({
       where: {
         completed: true,
         isWarmup: false,
         sessionExercise: {
           exerciseId,
-          session: { userId, status: { in: [...activeStatuses] } },
+          session: {
+            userId,
+            status: { in: [...activeStatuses] },
+            ...(since ? { startedAt: { gte: since } } : {}),
+          },
         },
       },
       include: completedSetInclude,
+    });
+  },
+
+  /** Cheap existence + name lookup — has this user ever completed a set for this
+   * exercise at all? Used to tell "never trained" apart from "trained, but not
+   * within the selected range" without fetching the exercise's full history. */
+  findAnyCompletedSetForExercise(userId: string, exerciseId: string) {
+    return prisma.workoutSet.findFirst({
+      where: {
+        completed: true,
+        isWarmup: false,
+        sessionExercise: { exerciseId, session: { userId, status: { in: [...activeStatuses] } } },
+      },
+      select: {
+        sessionExercise: { select: { exercise: { select: { id: true, name: true, muscleGroup: true } } } },
+      },
     });
   },
 

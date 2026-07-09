@@ -21,7 +21,6 @@ export type DashboardStatsDTO = {
   }[];
   profile: {
     name: string | null;
-    image: string | null;
     heightCm: number | null;
     latestBodyWeight: number | null;
     totalSessions: number;

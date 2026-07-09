@@ -8,7 +8,6 @@ export const userRepository = {
         id: true,
         name: true,
         email: true,
-        image: true,
         unitPreference: true,
         heightCm: true,
         passwordHash: true,
@@ -22,10 +21,6 @@ export const userRepository = {
 
   updateUnitPreference(id: string, unitPreference: "KG" | "LBS") {
     return prisma.user.update({ where: { id }, data: { unitPreference } });
-  },
-
-  updateImage(id: string, image: string) {
-    return prisma.user.update({ where: { id }, data: { image } });
   },
 
   updatePasswordHash(id: string, passwordHash: string) {

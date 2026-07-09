@@ -186,6 +186,9 @@ model ProgramDay {
   workoutSessions WorkoutSession[]
 
   @@index([programId])
+  // findTodaysSuggestedDaysForUser filters with `{ has: weekday }` on every
+  // dashboard load — a btree index can't serve that, only a GIN one can.
+  @@index([preferredWeekdays], type: Gin)
 }
 
 model ProgramDayExercise {

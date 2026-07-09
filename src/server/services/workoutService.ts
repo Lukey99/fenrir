@@ -54,23 +54,25 @@ export const workoutService = {
       throw new NotFoundError("Jour de programme introuvable.");
     }
 
-    const sessionExercises = await Promise.all(
-      day.exercises.map(async (pde) => {
-        const targetWeight = pde.targetWeight ? Number(pde.targetWeight) : null;
-        return {
-          order: pde.order,
-          exerciseId: pde.exerciseId,
-          sourceProgramDayExerciseId: pde.id,
-          targetSets: pde.targetSets,
-          targetRepsMin: pde.targetRepsMin,
-          targetRepsMax: pde.targetRepsMax,
-          targetWeight,
-          restSeconds: pde.restSeconds,
-          notes: pde.notes,
-          defaultWeight: targetWeight ?? (await getDefaultWeight(userId, pde.exerciseId)),
-        };
-      })
-    );
+    // Batched: one query for every exercise's last weight, instead of one
+    // findLastCompletedSetForExercise call per exercise in the day.
+    const defaultWeights = await workoutStatsRepository.findLastWeightPerExerciseForUser(userId);
+
+    const sessionExercises = day.exercises.map((pde) => {
+      const targetWeight = pde.targetWeight ? Number(pde.targetWeight) : null;
+      return {
+        order: pde.order,
+        exerciseId: pde.exerciseId,
+        sourceProgramDayExerciseId: pde.id,
+        targetSets: pde.targetSets,
+        targetRepsMin: pde.targetRepsMin,
+        targetRepsMax: pde.targetRepsMax,
+        targetWeight,
+        restSeconds: pde.restSeconds,
+        notes: pde.notes,
+        defaultWeight: targetWeight ?? defaultWeights.get(pde.exerciseId) ?? null,
+      };
+    });
 
     return workoutRepository.createSession(userId, input.programDayId, sessionExercises);
   },

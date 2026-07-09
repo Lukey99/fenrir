@@ -3,7 +3,8 @@
 import Link from "next/link";
 
 import { useUnit } from "@/hooks/use-unit";
-import { PhotoForm } from "@/components/settings/photo-form";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { initials } from "@/lib/utils";
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
@@ -21,7 +22,6 @@ export function ProfileCard({
 }: {
   profile: {
     name: string | null;
-    image: string | null;
     heightCm: number | null;
     latestBodyWeight: number | null;
     totalSessions: number;
@@ -32,7 +32,11 @@ export function ProfileCard({
   return (
     <div className="flex h-full min-h-0 flex-col justify-center gap-3 overflow-hidden md:items-center md:text-center">
       <div className="flex items-center gap-4 md:flex-col md:gap-2">
-        <PhotoForm image={profile.image} name={profile.name} size={64} />
+        <Avatar className="size-16">
+          <AvatarFallback className="bg-brand text-xl text-brand-foreground">
+            {initials(profile.name)}
+          </AvatarFallback>
+        </Avatar>
         <div className="min-w-0">
           <p className="truncate font-heading text-lg font-semibold">
             {profile.name ?? "Mon profil"}
