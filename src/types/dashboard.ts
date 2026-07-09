@@ -1,8 +1,14 @@
+export type DashboardActivityExercise = {
+  name: string;
+  avgWeight: number;
+  avgReps: number;
+  sets: number;
+};
+
 export type DashboardActivitySession = {
   sessionId: string;
   dayName: string | null;
-  exercises: string[];
-  totalSets: number;
+  exercises: DashboardActivityExercise[];
 };
 
 export type DashboardStatsDTO = {

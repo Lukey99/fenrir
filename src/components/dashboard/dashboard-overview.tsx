@@ -65,7 +65,7 @@ export function DashboardOverview({
               icon={User}
               color="bg-brand/12 text-brand"
               index={1}
-              className="order-2 h-auto flex-none md:order-1 md:h-full md:min-w-0 md:flex-1"
+              className="order-1 h-auto flex-none md:order-1 md:h-full md:min-w-0 md:flex-1"
               cardClassName={cardRounding}
             >
               <ProfileCard profile={stats.profile} />
@@ -76,7 +76,7 @@ export function DashboardOverview({
               icon={Dumbbell}
               color="bg-muscle-back/12 text-muscle-back"
               index={2}
-              className="order-1 min-h-0 flex-1 md:order-2 md:min-w-0"
+              className="order-2 min-h-0 flex-1 md:order-2 md:min-w-0"
               cardClassName={cardRounding}
               contentClassName="flex min-h-0 flex-1 flex-col"
             >
@@ -90,7 +90,7 @@ export function DashboardOverview({
           icon={Trophy}
           color="bg-muscle-forearms/12 text-muscle-forearms"
           index={3}
-          className="order-3 h-auto shrink-0 md:max-h-64"
+          className="order-3 min-h-0 flex-1"
           cardClassName={cardRounding}
           contentClassName="flex min-h-0 flex-1 flex-col"
         >

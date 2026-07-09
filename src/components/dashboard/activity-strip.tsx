@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Dumbbell } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useUnit } from "@/hooks/use-unit";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { DashboardActivitySession } from "@/types/dashboard";
 
@@ -18,6 +19,8 @@ function formatFullDate(iso: string) {
 }
 
 function DayPopover({ date, sessions }: { date: string; sessions: DashboardActivitySession[] }) {
+  const { unitLabel, toDisplay } = useUnit();
+
   return (
     <div className="flex flex-col gap-2.5">
       <p className="font-heading text-sm font-semibold capitalize">{formatFullDate(date)}</p>
@@ -29,10 +32,19 @@ function DayPopover({ date, sessions }: { date: string; sessions: DashboardActiv
         >
           <p className="truncate font-medium">{session.dayName ?? "Séance libre"}</p>
           {session.exercises.length > 0 ? (
-            <p className="mt-1 text-xs text-muted-foreground">
-              {session.exercises.join(", ")} · {session.totalSets} série
-              {session.totalSets > 1 ? "s" : ""}
-            </p>
+            <>
+              <p className="mt-1 text-[11px] text-muted-foreground/70">Poids × reps moyens</p>
+              <ul className="mt-1 flex flex-col gap-1">
+                {session.exercises.map((exercise) => (
+                  <li key={exercise.name} className="flex items-center justify-between gap-3 text-xs">
+                    <span className="truncate text-muted-foreground">{exercise.name}</span>
+                    <span className="shrink-0 font-medium">
+                      {toDisplay(exercise.avgWeight)} {unitLabel} × {exercise.avgReps}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </>
           ) : (
             <p className="mt-1 text-xs text-muted-foreground">Aucune série complétée.</p>
           )}
@@ -57,15 +69,6 @@ export function ActivityStrip({
 
   return (
     <div className="flex h-full flex-col justify-center gap-6">
-      <div className="flex items-baseline gap-2">
-        <span className="font-heading text-4xl font-bold tracking-tight sm:text-5xl">
-          {trainedCount}
-        </span>
-        <span className="text-sm text-muted-foreground">
-          séance{trainedCount > 1 ? "s" : ""} sur les 14 derniers jours
-        </span>
-      </div>
-
       <div
         role="img"
         aria-label={`${trainedCount} jour${trainedCount > 1 ? "s" : ""} entraîné${trainedCount > 1 ? "s" : ""} sur les 14 derniers`}

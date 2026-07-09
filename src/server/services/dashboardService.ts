@@ -52,7 +52,11 @@ export const dashboardService = {
 
     const sessionsByDay = new Map<
       string,
-      { sessionId: string; dayName: string | null; exercises: string[]; totalSets: number }[]
+      {
+        sessionId: string;
+        dayName: string | null;
+        exercises: { name: string; avgWeight: number; avgReps: number; sets: number }[];
+      }[]
     >();
     for (const s of sessionSummaries) {
       const trainedExercises = s.exercises.filter(
@@ -63,8 +67,14 @@ export const dashboardService = {
       list.push({
         sessionId: s.id,
         dayName: s.programDay?.name ?? null,
-        exercises: trainedExercises.map((se) => se.exercise.name),
-        totalSets: trainedExercises.reduce((sum, se) => sum + se.sets.length, 0),
+        exercises: trainedExercises.map((se) => ({
+          name: se.exercise.name,
+          avgWeight:
+            Math.round((se.sets.reduce((sum, set) => sum + toNumber(set.weight), 0) / se.sets.length) * 10) /
+            10,
+          avgReps: Math.round(se.sets.reduce((sum, set) => sum + (set.reps ?? 0), 0) / se.sets.length),
+          sets: se.sets.length,
+        })),
       });
       sessionsByDay.set(key, list);
     }

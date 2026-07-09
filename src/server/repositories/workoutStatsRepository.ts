@@ -130,7 +130,10 @@ export const workoutStatsRepository = {
           select: {
             action: true,
             exercise: { select: { name: true } },
-            sets: { where: { completed: true, isWarmup: false }, select: { id: true } },
+            sets: {
+              where: { completed: true, isWarmup: false },
+              select: { weight: true, reps: true },
+            },
           },
         },
       },
