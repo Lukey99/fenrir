@@ -1,13 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import {
-  estimate1RM,
-  dateKey,
-  computeStreak,
-  trendSlope,
-  detectPRs,
-  selectRecentPRs,
-  type SetForPRDetection,
-} from "@/server/services/analytics";
+import { estimate1RM, dateKey, computeStreak, trendSlope } from "@/server/services/analytics";
 
 afterEach(() => {
   vi.useRealTimers();
@@ -80,88 +72,6 @@ describe("computeStreak", () => {
     expect(
       computeStreak([utc("2026-07-10"), utc("2026-07-10"), utc("2026-07-09")])
     ).toBe(2);
-  });
-});
-
-function mkSet(
-  exerciseId: string,
-  weight: number,
-  reps: number,
-  dateStr: string,
-  exerciseName = exerciseId
-): SetForPRDetection {
-  return { exerciseId, exerciseName, weight, reps, date: utc(dateStr) };
-}
-
-describe("detectPRs", () => {
-  it("never flags the first set logged for an exercise (no baseline to beat)", () => {
-    expect(detectPRs([mkSet("squat", 80, 5, "2026-01-01")])).toEqual([]);
-  });
-
-  it("flags a strictly higher 1RM as a PR", () => {
-    const sets = [mkSet("squat", 80, 5, "2026-01-01"), mkSet("squat", 90, 5, "2026-01-08")];
-    const prs = detectPRs(sets);
-    expect(prs).toHaveLength(1);
-    expect(prs[0]).toMatchObject({ exerciseId: "squat", weight: 90, reps: 5 });
-  });
-
-  it("does not flag a tie (same 1RM as the current best)", () => {
-    const sets = [mkSet("squat", 80, 5, "2026-01-01"), mkSet("squat", 80, 5, "2026-01-08")];
-    expect(detectPRs(sets)).toEqual([]);
-  });
-
-  it("does not flag a lower 1RM, and the best doesn't regress afterward", () => {
-    const sets = [
-      mkSet("squat", 90, 5, "2026-01-01"),
-      mkSet("squat", 80, 5, "2026-01-08"), // lower — not a PR
-      mkSet("squat", 90, 5, "2026-01-15"), // ties the original best — still not a PR
-    ];
-    expect(detectPRs(sets)).toEqual([]);
-  });
-
-  it("tracks each exercise's baseline independently", () => {
-    const sets = [mkSet("squat", 80, 5, "2026-01-01"), mkSet("bench", 60, 5, "2026-01-01")];
-    expect(detectPRs(sets)).toEqual([]);
-  });
-
-  it("sorts by date internally regardless of input order", () => {
-    const sets = [
-      mkSet("squat", 90, 5, "2026-01-08"), // later date, listed first
-      mkSet("squat", 80, 5, "2026-01-01"), // earlier date, listed second
-    ];
-    const prs = detectPRs(sets);
-    expect(prs).toHaveLength(1);
-    expect(prs[0].weight).toBe(90);
-  });
-});
-
-describe("selectRecentPRs", () => {
-  const prs = [
-    { date: utc("2026-07-10"), label: "today" },
-    { date: utc("2026-04-11"), label: "exactly 90 days ago" },
-    { date: utc("2026-04-10"), label: "91 days ago" },
-  ];
-
-  it("includes a PR exactly at the boundary (inclusive) and excludes anything older", () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-07-10T10:00:00.000Z"));
-    const result = selectRecentPRs(prs, 90, 10);
-    expect(result.map((r) => r.label)).toEqual(["today", "exactly 90 days ago"]);
-  });
-
-  it("sorts newest first", () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-07-10T10:00:00.000Z"));
-    const result = selectRecentPRs(prs, 90, 10);
-    expect(result[0].label).toBe("today");
-  });
-
-  it("respects the limit", () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-07-10T10:00:00.000Z"));
-    const result = selectRecentPRs(prs, 90, 1);
-    expect(result).toHaveLength(1);
-    expect(result[0].label).toBe("today");
   });
 });
 

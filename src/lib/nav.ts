@@ -3,6 +3,7 @@ import {
   Dumbbell,
   ListChecks,
   TrendingUp,
+  Trophy,
   Scale,
   Settings,
   type LucideIcon,
@@ -19,6 +20,7 @@ export const navItems: NavItem[] = [
   { href: "/programs", label: "Programmes", icon: Dumbbell },
   { href: "/exercises", label: "Exercices", icon: ListChecks },
   { href: "/progress", label: "Progression", icon: TrendingUp },
+  { href: "/records", label: "Records", icon: Trophy },
   { href: "/bodyweight", label: "Poids de corps", icon: Scale },
   { href: "/settings", label: "Paramètres", icon: Settings },
 ];

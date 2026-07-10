@@ -125,6 +125,7 @@ model User {
   workoutSessions WorkoutSession[]
   bodyWeightEntries BodyWeightEntry[]
   weightGoals     WeightGoal[]
+  personalRecords PersonalRecord[]
 }
 
 // ---------------------------------------------------------------------------
@@ -146,6 +147,7 @@ model Exercise {
 
   programDayExercises ProgramDayExercise[]
   sessionExercises    SessionExercise[]
+  personalRecords     PersonalRecord[]
 
   @@index([muscleGroup])
   @@index([userId])
@@ -299,6 +301,29 @@ model BodyWeightEntry {
 
   @@unique([userId, date])
   @@index([userId, date])
+}
+
+// ---------------------------------------------------------------------------
+// Personal records (manually logged — distinct from the auto-detected PRs
+// derived from tracked workout sessions in dashboardService/analytics)
+// ---------------------------------------------------------------------------
+
+model PersonalRecord {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  exerciseId String
+  exercise   Exercise @relation(fields: [exerciseId], references: [id])
+
+  weight     Decimal  @db.Decimal(6, 2)
+  reps       Int
+  achievedAt DateTime @db.Date
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, exerciseId])
+  @@index([userId, achievedAt])
 }
 
 model WeightGoal {

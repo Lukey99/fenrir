@@ -37,20 +37,9 @@ const completedSetIncludeWithProgram = {
 } as const;
 
 export const workoutStatsRepository = {
-  /** Every logged (completed, non-warmup) set for a user, across all exercises. */
-  findCompletedSetsForUser(userId: string) {
-    return prisma.workoutSet.findMany({
-      where: {
-        completed: true,
-        isWarmup: false,
-        sessionExercise: { session: { userId, status: { in: [...activeStatuses] } } },
-      },
-      include: completedSetInclude,
-    });
-  },
-
-  /** Same as findCompletedSetsForUser, but with the source program/day attached —
-   * used to group progress by program (or "séances libres" when there's none). */
+  /** Every logged (completed, non-warmup) set for a user, with the source
+   * program/day attached — used to group progress by program (or "séances
+   * libres" when there's none). */
   findCompletedSetsWithProgramForUser(userId: string) {
     return prisma.workoutSet.findMany({
       where: {

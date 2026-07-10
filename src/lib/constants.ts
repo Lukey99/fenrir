@@ -51,6 +51,36 @@ export const muscleGroupColorClasses: Record<MuscleGroupValue, string> = {
   CORE: "bg-muscle-core/12 text-muscle-core",
 };
 
+// Broader, user-facing groupings on top of the muscle group taxonomy above —
+// used by the Records page, where "Biceps"/"Triceps"/"Avant-bras" reading as
+// three separate categories would fragment a single "Bras" record list.
+export const muscleCategoryOrder = ["CHEST", "BACK", "SHOULDERS", "ARMS", "LEGS", "CORE"] as const;
+
+export type MuscleCategoryValue = (typeof muscleCategoryOrder)[number];
+
+export const muscleCategoryLabels: Record<MuscleCategoryValue, string> = {
+  CHEST: "Poitrine",
+  BACK: "Dos",
+  SHOULDERS: "Épaules",
+  ARMS: "Bras",
+  LEGS: "Jambes",
+  CORE: "Core",
+};
+
+export const muscleGroupToCategory: Record<MuscleGroupValue, MuscleCategoryValue> = {
+  CHEST: "CHEST",
+  BACK: "BACK",
+  SHOULDERS: "SHOULDERS",
+  BICEPS: "ARMS",
+  TRICEPS: "ARMS",
+  FOREARMS: "ARMS",
+  QUADRICEPS: "LEGS",
+  HAMSTRINGS: "LEGS",
+  GLUTES: "LEGS",
+  CALVES: "LEGS",
+  CORE: "CORE",
+};
+
 export const muscleGroupBorderClasses: Record<MuscleGroupValue, string> = {
   CHEST: "border-muscle-chest/30",
   BACK: "border-muscle-back/30",

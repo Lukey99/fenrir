@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
+
 import { useUnit } from "@/hooks/use-unit";
+import { Button } from "@/components/ui/button";
 
 type PR = { exerciseId: string; exerciseName: string; weight: number; reps: number; date: string };
 
@@ -13,10 +16,21 @@ export function RecentRecordsTable({ recentPRs }: { recentPRs: PR[] }) {
 
   if (recentPRs.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">
-        Aucun record pour l&apos;instant. Termine une séance pour voir tes premiers
-        PRs ici.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p className="text-sm text-muted-foreground">
+          Aucun record pour l&apos;instant. Ajoute ton premier record pour suivre tes
+          performances au fil du temps.
+        </p>
+        <Button
+          size="sm"
+          variant="outline"
+          className="w-fit"
+          render={<Link href="/records" />}
+          nativeButton={false}
+        >
+          Ajouter un record
+        </Button>
+      </div>
     );
   }
 
@@ -34,7 +48,11 @@ export function RecentRecordsTable({ recentPRs }: { recentPRs: PR[] }) {
         <tbody>
           {recentPRs.map((pr) => (
             <tr key={`${pr.exerciseId}-${pr.date}`} className="border-b last:border-0">
-              <td className="truncate py-2 pr-2 font-medium">{pr.exerciseName}</td>
+              <td className="truncate py-2 pr-2 font-medium">
+                <Link href={`/records/${pr.exerciseId}`} className="hover:text-brand hover:underline">
+                  {pr.exerciseName}
+                </Link>
+              </td>
               <td className="py-2 pr-2 text-muted-foreground">
                 {toDisplay(pr.weight)} {unitLabel}
               </td>
@@ -47,14 +65,19 @@ export function RecentRecordsTable({ recentPRs }: { recentPRs: PR[] }) {
 
       <ul className="space-y-2 md:hidden">
         {recentPRs.map((pr) => (
-          <li key={`${pr.exerciseId}-${pr.date}`} className="flex items-center justify-between gap-2 text-sm">
-            <div className="min-w-0">
-              <p className="truncate font-medium">{pr.exerciseName}</p>
-              <p className="text-xs text-muted-foreground">{formatDate(pr.date)}</p>
-            </div>
-            <span className="shrink-0 text-muted-foreground">
-              {toDisplay(pr.weight)} {unitLabel} × {pr.reps}
-            </span>
+          <li key={`${pr.exerciseId}-${pr.date}`}>
+            <Link
+              href={`/records/${pr.exerciseId}`}
+              className="flex items-center justify-between gap-2 text-sm"
+            >
+              <div className="min-w-0">
+                <p className="truncate font-medium">{pr.exerciseName}</p>
+                <p className="text-xs text-muted-foreground">{formatDate(pr.date)}</p>
+              </div>
+              <span className="shrink-0 text-muted-foreground">
+                {toDisplay(pr.weight)} {unitLabel} × {pr.reps}
+              </span>
+            </Link>
           </li>
         ))}
       </ul>

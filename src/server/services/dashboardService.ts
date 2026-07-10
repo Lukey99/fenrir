@@ -1,8 +1,9 @@
 import { workoutStatsRepository } from "@/server/repositories/workoutStatsRepository";
 import { bodyWeightRepository } from "@/server/repositories/bodyWeightRepository";
 import { programRepository } from "@/server/repositories/programRepository";
+import { personalRecordRepository } from "@/server/repositories/personalRecordRepository";
 import { settingsService } from "@/server/services/settingsService";
-import { dateKey, daysAgo, detectPRs, selectRecentPRs } from "@/server/services/analytics";
+import { dateKey, daysAgo } from "@/server/services/analytics";
 
 function toNumber(value: unknown): number {
   return value === null || value === undefined ? 0 : Number(value);
@@ -10,29 +11,29 @@ function toNumber(value: unknown): number {
 
 export const dashboardService = {
   async getStats(userId: string) {
-    const [sets, sessionSummaries, totalSessions, latestBodyWeightEntry, profile, suggestedDays] =
-      await Promise.all([
-        workoutStatsRepository.findCompletedSetsForUser(userId),
-        workoutStatsRepository.findSessionSummariesSince(userId, daysAgo(13)),
-        workoutStatsRepository.countCompletedSessionsForUser(userId),
-        bodyWeightRepository.findLatestForUser(userId),
-        settingsService.getProfile(userId),
-        programRepository.findTodaysSuggestedDaysForUser(userId, new Date().getDay()),
-      ]);
+    const [
+      recentRecords,
+      sessionSummaries,
+      totalSessions,
+      latestBodyWeightEntry,
+      profile,
+      suggestedDays,
+    ] = await Promise.all([
+      personalRecordRepository.findRecentForUser(userId, 10),
+      workoutStatsRepository.findSessionSummariesSince(userId, daysAgo(13)),
+      workoutStatsRepository.countCompletedSessionsForUser(userId),
+      bodyWeightRepository.findLatestForUser(userId),
+      settingsService.getProfile(userId),
+      programRepository.findTodaysSuggestedDaysForUser(userId, new Date().getDay()),
+    ]);
 
-    const prs = detectPRs(
-      sets.map((set) => ({
-        exerciseId: set.sessionExercise.exerciseId,
-        exerciseName: set.sessionExercise.exercise.name,
-        weight: toNumber(set.weight),
-        reps: set.reps ?? 0,
-        date: set.sessionExercise.session.startedAt,
-      }))
-    );
-
-    // A dedicated table reads sparse at 5 rows over 30 days for most training
-    // frequencies — a wider window/count gives it a fuller body.
-    const recentPRs = selectRecentPRs(prs, 90, 10);
+    const recentPRs = recentRecords.map((r) => ({
+      exerciseId: r.exercise.id,
+      exerciseName: r.exercise.name,
+      weight: toNumber(r.weight),
+      reps: r.reps,
+      date: r.achievedAt,
+    }));
 
     const sessionsByDay = new Map<
       string,

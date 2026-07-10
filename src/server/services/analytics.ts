@@ -66,54 +66,6 @@ export function computeStreak(trainingDates: Date[]): number {
   return streak;
 }
 
-export type SetForPRDetection = {
-  exerciseId: string;
-  exerciseName: string;
-  weight: number;
-  reps: number;
-  date: Date;
-};
-
-/**
- * Detects PRs across a user's full set history: for each exercise, a set whose
- * estimated 1RM strictly beats every prior set (in chronological order) for
- * that same exercise. The first set ever logged for an exercise only
- * establishes a baseline — it has nothing to beat yet, so it's never itself a
- * PR. Ties (a set matching, not beating, the current best) don't count either.
- */
-export function detectPRs(sets: SetForPRDetection[]): SetForPRDetection[] {
-  const sorted = [...sets].sort((a, b) => a.date.getTime() - b.date.getTime());
-  const bestByExercise = new Map<string, number>();
-  const prs: SetForPRDetection[] = [];
-
-  for (const set of sorted) {
-    const oneRm = estimate1RM(set.weight, set.reps);
-    const best = bestByExercise.get(set.exerciseId) ?? 0;
-
-    if (oneRm > best) {
-      bestByExercise.set(set.exerciseId, oneRm);
-      if (best > 0) {
-        prs.push(set);
-      }
-    }
-  }
-  return prs;
-}
-
-/** Most recent PRs within a trailing window, newest first — a dedicated table
- * reads sparse at a short window/count for most training frequencies. */
-export function selectRecentPRs<T extends { date: Date }>(
-  prs: T[],
-  withinDays: number,
-  limit: number
-): T[] {
-  const cutoff = daysAgo(withinDays);
-  return [...prs]
-    .filter((pr) => pr.date >= cutoff)
-    .sort((a, b) => b.date.getTime() - a.date.getTime())
-    .slice(0, limit);
-}
-
 /** Simple linear regression slope over evenly-indexed points (0..n-1). */
 export function trendSlope(values: number[]): number {
   const n = values.length;
