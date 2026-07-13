@@ -19,11 +19,11 @@ export function DashboardOverview({
   stats: DashboardStatsDTO;
 }) {
   return (
-    <div className="flex flex-col gap-4 md:h-[calc(100vh-8rem)] md:overflow-hidden">
-      <div className="relative shrink-0 overflow-hidden rounded-2xl bg-card px-6 py-8 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_20px_40px_-16px_rgba(0,0,0,0.18)] sm:px-8 md:rounded-3xl dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_20px_40px_-16px_rgba(0,0,0,0.6)]">
+    <div className="flex flex-col gap-6 md:h-[calc(100vh-8rem)] md:overflow-hidden">
+      <div className="relative shrink-0">
         <WolfMark
           showDetail={false}
-          className="pointer-events-none absolute -top-8 -right-8 size-48 text-brand/6 dark:text-brand/20"
+          className="pointer-events-none absolute -top-6 -right-2 size-28 text-brand/8 dark:text-brand/15"
         />
         <div className="relative">
           <KineticHero userName={userName} />
@@ -33,8 +33,8 @@ export function DashboardOverview({
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-4">
-        <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 md:auto-rows-fr md:grid-cols-[3fr_2fr]">
+      <div className="flex min-h-0 flex-1 flex-col gap-6 md:overflow-y-auto">
+        <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-[3fr_2fr]">
           <WidgetCard
             title="Activité (14 jours)"
             icon={<Activity className="size-3.5" />}
@@ -42,18 +42,17 @@ export function DashboardOverview({
             index={0}
             className="order-2 md:order-1"
             cardClassName={cardRounding}
-            contentClassName="flex min-h-0 flex-1 flex-col"
           >
             <ActivityStrip activity={stats.activity} />
           </WidgetCard>
 
-          <div className="order-1 flex min-h-0 flex-col gap-4 md:order-2 md:h-full md:flex-row">
+          <div className="order-1 flex flex-col gap-6 md:order-2 md:flex-row">
             <WidgetCard
               title="Mon profil"
               icon={<User className="size-3.5" />}
               color="bg-brand/12 text-brand"
               index={1}
-              className="order-1 h-auto flex-none md:order-1 md:h-full md:min-w-0 md:flex-1"
+              className="order-1 md:min-w-0 md:flex-1"
               plain
             >
               <ProfileCard profile={stats.profile} />
@@ -64,8 +63,7 @@ export function DashboardOverview({
               icon={<Dumbbell className="size-3.5" />}
               color="bg-muscle-back/12 text-muscle-back"
               index={2}
-              className="order-2 min-h-0 flex-1 md:order-2 md:min-w-0"
-              contentClassName="flex min-h-0 flex-1 flex-col"
+              className="order-2 md:min-w-0 md:flex-1"
               plain
             >
               <SuggestedSessions suggestedSessions={stats.suggestedSessions} />
@@ -78,8 +76,6 @@ export function DashboardOverview({
           icon={<Trophy className="size-3.5" />}
           color="bg-muscle-forearms/12 text-muscle-forearms"
           index={3}
-          className="order-3 min-h-0 flex-1"
-          contentClassName="flex min-h-0 flex-1 flex-col"
           plain
         >
           <RecentRecordsTable recentPRs={stats.recentPRs} />

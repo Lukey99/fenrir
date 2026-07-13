@@ -36,7 +36,7 @@ export function WidgetCard({
   children: React.ReactNode;
 }) {
   const header = (
-    <div className="flex flex-row items-center justify-between px-5">
+    <div className={cn("flex flex-row items-center justify-between", !plain && "px-5")}>
       <span className="font-heading text-sm leading-snug font-medium text-muted-foreground">
         {title}
       </span>
@@ -62,7 +62,7 @@ export function WidgetCard({
         className={cn("group flex h-full flex-col gap-3", className)}
       >
         {header}
-        <div className={cn("px-5", contentClassName)}>{children}</div>
+        <div className={contentClassName}>{children}</div>
       </motion.div>
     );
   }
