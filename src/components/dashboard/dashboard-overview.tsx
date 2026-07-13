@@ -1,5 +1,6 @@
 import { User, Activity, Dumbbell, Trophy } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import { WidgetCard } from "@/components/dashboard/widget-card";
 import { ProfileCard } from "@/components/dashboard/profile-card";
 import { ActivityStrip } from "@/components/dashboard/activity-strip";
@@ -54,7 +55,7 @@ export function DashboardOverview({
               color="bg-brand/12 text-brand"
               index={1}
               className="order-1 h-auto flex-none md:order-1 md:h-full md:min-w-0 md:flex-1"
-              cardClassName={cardRounding}
+              cardClassName={cn(cardRounding, "border-brand/25 bg-brand/10 dark:border-brand/30 dark:bg-brand/16")}
             >
               <ProfileCard profile={stats.profile} />
             </WidgetCard>
@@ -65,7 +66,7 @@ export function DashboardOverview({
               color="bg-muscle-back/12 text-muscle-back"
               index={2}
               className="order-2 min-h-0 flex-1 md:order-2 md:min-w-0"
-              cardClassName={cardRounding}
+              cardClassName={cn(cardRounding, "border-muscle-back/30 bg-muscle-back/14 dark:border-muscle-back/35 dark:bg-muscle-back/20")}
               contentClassName="flex min-h-0 flex-1 flex-col"
             >
               <SuggestedSessions suggestedSessions={stats.suggestedSessions} />
