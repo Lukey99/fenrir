@@ -28,6 +28,7 @@ export function DashboardOverview({ stats }: { stats: DashboardStatsDTO }) {
           index={0}
           className="md:col-span-2"
           cardClassName={cardRounding}
+          contentClassName="flex min-h-0 flex-1 flex-col"
         >
           <ActivityStrip activity={stats.activity} />
         </WidgetCard>
