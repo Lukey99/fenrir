@@ -128,6 +128,20 @@ export const workoutStatsRepository = {
     return prisma.workoutSession.count({ where: { userId, status: "COMPLETED" } });
   },
 
+  countInProgressSessionsForUser(userId: string) {
+    return prisma.workoutSession.count({ where: { userId, status: "IN_PROGRESS" } });
+  },
+
+  /** The session to offer resuming on the dashboard — most recently started,
+   * if the user has one they haven't finished or abandoned. */
+  findActiveSessionForUser(userId: string) {
+    return prisma.workoutSession.findFirst({
+      where: { userId, status: "IN_PROGRESS" },
+      orderBy: { startedAt: "desc" },
+      select: { id: true, startedAt: true, programDay: { select: { name: true } } },
+    });
+  },
+
   /** Session summaries since a given date — used to build the dashboard's activity strip
    * (day-by-day trained/not, plus a per-session breakdown for the hover popover). */
   findSessionSummariesSince(userId: string, since: Date) {

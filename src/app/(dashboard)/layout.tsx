@@ -28,7 +28,7 @@ export default async function DashboardLayout({
       </a>
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-16 shrink-0 items-center justify-between gap-4 bg-sidebar px-4 shadow-[0_4px_24px_-8px_rgba(0,0,0,0.08)] md:bg-transparent md:px-6 md:shadow-none dark:shadow-[0_4px_24px_-8px_rgba(0,0,0,0.5)]">
+        <header className="flex h-16 shrink-0 items-center justify-between gap-4 bg-sidebar px-4 shadow-[0_4px_24px_-8px_rgba(0,0,0,0.08)] md:bg-transparent md:px-8 md:shadow-none dark:shadow-[0_4px_24px_-8px_rgba(0,0,0,0.5)]">
           <Link href="/dashboard" className="group flex items-center gap-2 font-heading font-semibold md:hidden">
             <span className="flex size-7 items-center justify-center rounded-md bg-(image:--brand-gradient) text-brand-foreground shadow-md shadow-brand/30 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12">
               <WolfMark className="size-4" />
@@ -38,7 +38,7 @@ export default async function DashboardLayout({
           <div className="flex-1" />
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <UserMenu name={session.user.name} email={session.user.email} />
+            <UserMenu name={session.user.name} email={session.user.email} showDetails />
           </div>
         </header>
         <main

@@ -19,9 +19,13 @@ import { initials } from "@/lib/utils";
 export function UserMenu({
   name,
   email,
+  showDetails = false,
 }: {
   name?: string | null;
   email?: string | null;
+  /** Shows the name/email next to the avatar instead of just the avatar —
+   * for a roomier top bar where that context is worth the space. */
+  showDetails?: boolean;
 }) {
   return (
     <DropdownMenu>
@@ -34,6 +38,12 @@ export function UserMenu({
             {initials(name, email)}
           </AvatarFallback>
         </Avatar>
+        {showDetails && (
+          <span className="hidden flex-col items-start text-left md:flex">
+            <span className="text-sm leading-tight font-medium">{name ?? "Mon compte"}</span>
+            {email && <span className="text-xs leading-tight text-muted-foreground">{email}</span>}
+          </span>
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuGroup>

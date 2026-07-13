@@ -37,7 +37,7 @@ export const personalRecordRepository = {
         weight: true,
         reps: true,
         achievedAt: true,
-        exercise: { select: { id: true, name: true } },
+        exercise: { select: { id: true, name: true, muscleGroup: true } },
       },
       orderBy: { achievedAt: "desc" },
       take: limit,

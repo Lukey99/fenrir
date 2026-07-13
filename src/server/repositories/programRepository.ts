@@ -31,6 +31,10 @@ export const programRepository = {
     });
   },
 
+  countActiveForUser(userId: string) {
+    return prisma.program.count({ where: { userId, status: "ACTIVE" } });
+  },
+
   findFullByIdForUser(id: string, userId: string) {
     return prisma.program.findFirst({
       where: { id, userId },

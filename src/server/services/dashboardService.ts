@@ -3,6 +3,7 @@ import { bodyWeightRepository } from "@/server/repositories/bodyWeightRepository
 import { programRepository } from "@/server/repositories/programRepository";
 import { personalRecordRepository } from "@/server/repositories/personalRecordRepository";
 import { settingsService } from "@/server/services/settingsService";
+import { bodyWeightService } from "@/server/services/bodyWeightService";
 import { dateKey, daysAgo } from "@/server/services/analytics";
 
 function toNumber(value: unknown): number {
@@ -15,21 +16,30 @@ export const dashboardService = {
       recentRecords,
       sessionSummaries,
       totalSessions,
+      inProgressSessions,
+      activePrograms,
+      activeSession,
       latestBodyWeightEntry,
       profile,
       suggestedDays,
+      weightGoal,
     ] = await Promise.all([
       personalRecordRepository.findRecentForUser(userId, 10),
       workoutStatsRepository.findSessionSummariesSince(userId, daysAgo(13)),
       workoutStatsRepository.countCompletedSessionsForUser(userId),
+      workoutStatsRepository.countInProgressSessionsForUser(userId),
+      programRepository.countActiveForUser(userId),
+      workoutStatsRepository.findActiveSessionForUser(userId),
       bodyWeightRepository.findLatestForUser(userId),
       settingsService.getProfile(userId),
       programRepository.findTodaysSuggestedDaysForUser(userId, new Date().getDay()),
+      bodyWeightService.getGoalSummary(userId),
     ]);
 
     const recentPRs = recentRecords.map((r) => ({
       exerciseId: r.exercise.id,
       exerciseName: r.exercise.name,
+      muscleGroup: r.exercise.muscleGroup,
       weight: toNumber(r.weight),
       reps: r.reps,
       date: r.achievedAt,
@@ -43,6 +53,7 @@ export const dashboardService = {
         exercises: { name: string; avgWeight: number; avgReps: number; sets: number }[];
       }[]
     >();
+    const volumeByDay = new Map<string, number>();
     for (const s of sessionSummaries) {
       const trainedExercises = s.exercises.filter(
         (se) => se.action !== "SKIPPED" && se.sets.length > 0
@@ -62,6 +73,11 @@ export const dashboardService = {
         })),
       });
       sessionsByDay.set(key, list);
+
+      const sessionVolume = trainedExercises
+        .flatMap((se) => se.sets)
+        .reduce((sum, set) => sum + toNumber(set.weight) * (set.reps ?? 0), 0);
+      volumeByDay.set(key, (volumeByDay.get(key) ?? 0) + sessionVolume);
     }
 
     // Both sides must stay UTC-anchored throughout (matches computeStreak's fix):
@@ -75,6 +91,19 @@ export const dashboardService = {
       const daySessions = sessionsByDay.get(key) ?? [];
       return { date: key, weekday: date.getUTCDay(), trained: daySessions.length > 0, sessions: daySessions };
     });
+
+    // Monday-anchored current week, matching the weekday convention used
+    // elsewhere (0=Sunday..6=Saturday via getUTCDay()).
+    const daysSinceMonday = (todayUtc.getUTCDay() + 6) % 7;
+    const weekStart = new Date(todayUtc);
+    weekStart.setUTCDate(weekStart.getUTCDate() - daysSinceMonday);
+    const weeklyVolume = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(weekStart);
+      date.setUTCDate(date.getUTCDate() + i);
+      const key = dateKey(date);
+      return { weekday: date.getUTCDay(), volumeKg: Math.round(volumeByDay.get(key) ?? 0) };
+    });
+    const sessionsThisWeek = Array.from(volumeByDay.keys()).filter((key) => key >= dateKey(weekStart)).length;
 
     const suggestedSessions = suggestedDays.map((day) => ({
       programDayId: day.id,
@@ -93,6 +122,27 @@ export const dashboardService = {
       },
       suggestedSessions,
       recentPRs,
+      counts: {
+        totalSessions,
+        sessionsThisWeek,
+        inProgressSessions,
+        activePrograms,
+      },
+      weeklyVolume,
+      activeSession: activeSession
+        ? {
+            sessionId: activeSession.id,
+            dayName: activeSession.programDay?.name ?? null,
+            startedAt: activeSession.startedAt,
+          }
+        : null,
+      weightGoal: weightGoal
+        ? {
+            targetWeight: weightGoal.targetWeight,
+            remaining: weightGoal.remaining,
+            progressPercent: weightGoal.progressPercent,
+          }
+        : null,
     };
   },
 };

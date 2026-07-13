@@ -13,6 +13,9 @@ export default async function DashboardPage() {
   const stats: DashboardStatsDTO = {
     ...rawStats,
     recentPRs: rawStats.recentPRs.map((pr) => ({ ...pr, date: pr.date.toISOString() })),
+    activeSession: rawStats.activeSession
+      ? { ...rawStats.activeSession, startedAt: rawStats.activeSession.startedAt.toISOString() }
+      : null,
   };
 
   return <DashboardOverview userName={session.user.name} stats={stats} />;

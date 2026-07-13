@@ -1,11 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { Dumbbell } from "lucide-react";
 
 import { useUnit } from "@/hooks/use-unit";
 import { MagneticButton } from "@/components/ui/magnetic-button";
+import { muscleGroupColorClasses, type MuscleGroupValue } from "@/lib/constants";
 
-type PR = { exerciseId: string; exerciseName: string; weight: number; reps: number; date: string };
+type PR = {
+  exerciseId: string;
+  exerciseName: string;
+  muscleGroup: string;
+  weight: number;
+  reps: number;
+  date: string;
+};
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
@@ -35,52 +44,30 @@ export function RecentRecordsTable({ recentPRs }: { recentPRs: PR[] }) {
   }
 
   return (
-    <div className="md:h-full md:min-h-0 md:overflow-y-auto">
-      <table className="hidden w-full text-sm md:table">
-        <thead>
-          <tr className="border-b text-left text-xs text-muted-foreground">
-            <th className="pb-2 font-medium">Exercice</th>
-            <th className="pb-2 font-medium">Poids</th>
-            <th className="pb-2 font-medium">Reps</th>
-            <th className="pb-2 font-medium">Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {recentPRs.map((pr) => (
-            <tr key={`${pr.exerciseId}-${pr.date}`} className="border-b last:border-0">
-              <td className="truncate py-2 pr-2 font-medium">
-                <Link href={`/records/${pr.exerciseId}`} className="hover:text-brand hover:underline">
-                  {pr.exerciseName}
-                </Link>
-              </td>
-              <td className="py-2 pr-2 text-muted-foreground">
-                {toDisplay(pr.weight)} {unitLabel}
-              </td>
-              <td className="py-2 pr-2 text-muted-foreground">{pr.reps}</td>
-              <td className="py-2 text-muted-foreground">{formatDate(pr.date)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <ul className="space-y-2 md:hidden">
-        {recentPRs.map((pr) => (
-          <li key={`${pr.exerciseId}-${pr.date}`}>
-            <Link
-              href={`/records/${pr.exerciseId}`}
-              className="flex items-center justify-between gap-2 text-sm"
+    <ul className="flex flex-col gap-1">
+      {recentPRs.map((pr) => (
+        <li key={`${pr.exerciseId}-${pr.date}`}>
+          <Link
+            href={`/records/${pr.exerciseId}`}
+            className="flex items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-muted/60"
+          >
+            <span
+              className={`flex size-9 shrink-0 items-center justify-center rounded-full ${
+                muscleGroupColorClasses[pr.muscleGroup as MuscleGroupValue]
+              }`}
             >
-              <div className="min-w-0">
-                <p className="truncate font-medium">{pr.exerciseName}</p>
-                <p className="text-xs text-muted-foreground">{formatDate(pr.date)}</p>
-              </div>
-              <span className="shrink-0 text-muted-foreground">
-                {toDisplay(pr.weight)} {unitLabel} × {pr.reps}
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+              <Dumbbell className="size-4" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium">{pr.exerciseName}</p>
+              <p className="text-xs text-muted-foreground">{formatDate(pr.date)}</p>
+            </div>
+            <span className="shrink-0 text-sm font-medium text-muted-foreground">
+              {toDisplay(pr.weight)} {unitLabel} × {pr.reps}
+            </span>
+          </Link>
+        </li>
+      ))}
+    </ul>
   );
 }
