@@ -35,7 +35,7 @@ export default async function ExerciseProgressPage({
   const colorVar = `var(--muscle-${exercise.muscleGroup.toLowerCase()})`;
 
   return (
-    <div className="flex flex-col gap-4 md:h-[calc(100vh-7rem)] md:overflow-hidden">
+    <div className="flex flex-col gap-4 md:h-[calc(100vh-8rem)] md:overflow-hidden">
       <div className="shrink-0">
         <Button
           variant="ghost"

@@ -73,7 +73,7 @@ export default async function SessionProgressPage({
   );
 
   return (
-    <div className="flex flex-col gap-4 md:h-[calc(100vh-7rem)] md:overflow-hidden">
+    <div className="flex flex-col gap-4 md:h-[calc(100vh-8rem)] md:overflow-hidden">
       {trainedExercises.length === 0 ? (
         <>
           {header}

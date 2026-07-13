@@ -18,7 +18,7 @@ export function DashboardOverview({
   stats: DashboardStatsDTO;
 }) {
   return (
-    <div className="flex flex-col gap-4 md:h-[calc(100vh-7rem)] md:overflow-hidden">
+    <div className="flex flex-col gap-4 md:h-[calc(100vh-8rem)] md:overflow-hidden">
       <div className="relative shrink-0 overflow-hidden rounded-2xl border bg-card px-6 py-8 shadow-sm sm:px-8 md:rounded-3xl">
         <WolfMark
           showDetail={false}
