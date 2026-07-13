@@ -1,7 +1,5 @@
-import Link from "next/link";
 import { User, Activity, Trophy } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { WidgetCard } from "@/components/dashboard/widget-card";
 import { StatCards } from "@/components/dashboard/stat-cards";
 import { ProfileCard } from "@/components/dashboard/profile-card";
@@ -23,21 +21,11 @@ export function DashboardOverview({
 }) {
   return (
     <div className="flex flex-col gap-2 md:h-[calc(100vh-8rem)] md:overflow-hidden">
-      <div className="flex shrink-0 flex-wrap items-end justify-between gap-4">
-        <div>
-          <KineticHero userName={userName} />
-          <p className="mt-1 text-muted-foreground">
-            Voici un aperçu de ton entraînement.
-          </p>
-        </div>
-        <Button
-          size="lg"
-          className="h-12 px-7 text-base"
-          render={<Link href="/programs" />}
-          nativeButton={false}
-        >
-          Nouveau programme
-        </Button>
+      <div className="shrink-0">
+        <KineticHero userName={userName} />
+        <p className="mt-1 text-muted-foreground">
+          Voici un aperçu de ton entraînement.
+        </p>
       </div>
 
       <div className="shrink-0">

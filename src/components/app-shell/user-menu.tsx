@@ -40,7 +40,9 @@ export function UserMenu({
         </Avatar>
         {showDetails && (
           <span className="hidden flex-col items-start text-left md:flex">
-            <span className="text-sm leading-tight font-medium">{name ?? "Mon compte"}</span>
+            <span className="text-sm leading-tight font-medium">
+              {name ? `Bienvenue, ${name}` : "Bienvenue"}
+            </span>
             {email && <span className="text-xs leading-tight text-muted-foreground">{email}</span>}
           </span>
         )}
