@@ -39,14 +39,9 @@ export function UserMenu({
           </AvatarFallback>
         </Avatar>
         {showDetails && (
-          <span className="hidden items-center gap-1.5 text-left text-sm md:flex">
-            <span className="font-medium">{name ? `Bienvenue, ${name}` : "Bienvenue"}</span>
-            {email && (
-              <>
-                <span className="text-muted-foreground">·</span>
-                <span className="text-muted-foreground">{email}</span>
-              </>
-            )}
+          <span className="hidden flex-col items-start text-left md:flex">
+            <span className="text-sm leading-tight font-medium">{name ?? "Mon compte"}</span>
+            {email && <span className="text-xs leading-tight text-muted-foreground">{email}</span>}
           </span>
         )}
       </DropdownMenuTrigger>

@@ -21,5 +21,5 @@ export default async function DashboardPage() {
       : null,
   };
 
-  return <DashboardOverview userName={session.user.name} stats={stats} />;
+  return <DashboardOverview stats={stats} />;
 }

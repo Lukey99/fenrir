@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { Sidebar } from "@/components/app-shell/sidebar";
 import { BottomTabBar } from "@/components/app-shell/bottom-tab-bar";
 import { UserMenu } from "@/components/app-shell/user-menu";
+import { HeaderGreeting } from "@/components/app-shell/header-greeting";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { PageTransition } from "@/components/page-transition";
 import { WolfMark } from "@/components/icons/wolf-mark";
@@ -35,8 +36,10 @@ export default async function DashboardLayout({
             </span>
             Fenrir
           </Link>
-          <div className="flex-1" />
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-1 items-center">
+            <HeaderGreeting userName={session.user.name} />
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
             <ThemeToggle />
             <UserMenu name={session.user.name} email={session.user.email} showDetails />
           </div>

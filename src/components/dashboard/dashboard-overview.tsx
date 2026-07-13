@@ -7,26 +7,14 @@ import { ActivityStrip } from "@/components/dashboard/activity-strip";
 import { TodaySessionCard } from "@/components/dashboard/today-session-card";
 import { LastSessionCard } from "@/components/dashboard/last-session-card";
 import { RecentRecordsTable } from "@/components/dashboard/recent-records-table";
-import { KineticHero } from "@/components/dashboard/kinetic-hero";
 import type { DashboardStatsDTO } from "@/types/dashboard";
 
 const cardRounding = "rounded-2xl py-5 md:rounded-3xl md:[--card-spacing:--spacing(5)]";
 
-export function DashboardOverview({
-  userName,
-  stats,
-}: {
-  userName?: string | null;
-  stats: DashboardStatsDTO;
-}) {
+export function DashboardOverview({ stats }: { stats: DashboardStatsDTO }) {
   return (
     <div className="flex flex-col gap-2 md:h-[calc(100vh-8rem)] md:overflow-hidden">
-      <div className="shrink-0">
-        <KineticHero userName={userName} />
-        <p className="mt-1 text-muted-foreground">
-          Voici un aperçu de ton entraînement.
-        </p>
-      </div>
+      <h1 className="shrink-0 font-heading text-2xl font-semibold tracking-tight">Tableau de bord</h1>
 
       <div className="shrink-0">
         <StatCards counts={stats.counts} weightGoal={stats.weightGoal} />
