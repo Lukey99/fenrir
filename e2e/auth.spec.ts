@@ -4,7 +4,8 @@ import { registerNewUser, uniqueEmail } from "./fixtures";
 test.describe("Authentification", () => {
   test("un nouvel utilisateur peut créer un compte et arrive sur le dashboard", async ({ page }) => {
     const { name } = await registerNewUser(page);
-    await expect(page.getByRole("heading", { name: new RegExp(`Bienvenue, ${name}`) })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Tableau de bord" })).toBeVisible();
+    await expect(page.getByText(new RegExp(`Bienvenue, ${name}`))).toBeVisible();
   });
 
   test("un compte déjà utilisé affiche une erreur à l'inscription", async ({ page }) => {

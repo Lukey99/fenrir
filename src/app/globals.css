@@ -65,11 +65,10 @@
 }
 
 :root {
-  /* A muted lavender-grey canvas (not near-white) is what makes the solid
-     white cards on top of it read as "elevated" purely through contrast +
-     soft shadow — no border needed. Sidebar/card share the same near-white
-     elevated tone; the page canvas sits a clear step below both. */
-  --background: oklch(0.75 0.02 275);
+  /* A soft, barely-tinted near-white canvas — elevation comes from the
+     shadow, not a stark grey backdrop. Sidebar/card sit one gentle step
+     above it, distinguished more by shadow than by color contrast. */
+  --background: oklch(0.955 0.008 275);
   --foreground: oklch(0.145 0 0);
   --card: oklch(0.99 0.003 275);
   --card-foreground: oklch(0.145 0 0);
