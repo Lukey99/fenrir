@@ -20,7 +20,7 @@ export function DashboardOverview({
 }) {
   return (
     <div className="flex flex-col gap-4 md:h-[calc(100vh-8rem)] md:overflow-hidden">
-      <div className="relative shrink-0 overflow-hidden rounded-2xl border bg-card px-6 py-8 shadow-sm sm:px-8 md:rounded-3xl dark:border-glass-border dark:bg-glass dark:shadow-[0_8px_32px_rgba(0,0,0,0.45)] dark:backdrop-blur-xl">
+      <div className="relative shrink-0 overflow-hidden rounded-2xl border border-glass-border bg-glass px-6 py-8 shadow-[0_8px_32px_rgba(0,0,0,0.08)] backdrop-blur-xl sm:px-8 md:rounded-3xl dark:shadow-[0_8px_32px_rgba(0,0,0,0.45)]">
         <WolfMark
           showDetail={false}
           className="pointer-events-none absolute -top-8 -right-8 size-48 text-brand/6 dark:text-brand/20"

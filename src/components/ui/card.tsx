@@ -12,7 +12,7 @@ function Card({
       data-slot="card"
       data-size={size}
       className={cn(
-        "group/card relative flex flex-col gap-(--card-spacing) overflow-hidden rounded-2xl bg-card py-(--card-spacing) text-sm text-card-foreground shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_28px_-10px_rgba(0,0,0,0.12)] ring-1 ring-black/4 [--card-spacing:--spacing(6)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(4)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-2xl *:[img:last-child]:rounded-b-2xl dark:border dark:border-glass-border dark:bg-glass dark:shadow-[0_8px_32px_rgba(0,0,0,0.45)] dark:ring-0 dark:backdrop-blur-xl",
+        "group/card relative flex flex-col gap-(--card-spacing) overflow-hidden rounded-2xl border border-glass-border bg-glass py-(--card-spacing) text-sm text-card-foreground shadow-[0_8px_32px_rgba(0,0,0,0.08)] ring-0 backdrop-blur-xl [--card-spacing:--spacing(6)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(4)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-2xl *:[img:last-child]:rounded-b-2xl dark:shadow-[0_8px_32px_rgba(0,0,0,0.45)]",
         className
       )}
       {...props}

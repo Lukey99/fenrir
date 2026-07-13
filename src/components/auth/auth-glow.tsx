@@ -13,7 +13,7 @@ export function AuthGlow() {
       />
       <motion.div
         aria-hidden
-        className="pointer-events-none absolute -bottom-32 left-1/4 hidden size-80 rounded-full bg-ember opacity-0 blur-3xl dark:block dark:opacity-20"
+        className="pointer-events-none absolute -bottom-32 left-1/4 size-80 rounded-full bg-ember opacity-15 blur-3xl dark:opacity-20"
         animate={{ scale: [1, 1.15, 1], x: [0, 20, 0] }}
         transition={{ duration: 14, repeat: Infinity, ease: "easeInOut", delay: 3 }}
       />
