@@ -65,12 +65,13 @@
 }
 
 :root {
-  /* A tinted canvas (not pure white) is what makes the white cards on top of
-     it read as "elevated" without needing a heavy border — the sidebar and
-     cards share the same lightest tone, the page canvas sits one step below. */
-  --background: oklch(0.975 0.006 265);
+  /* A muted lavender-grey canvas (not near-white) is what makes the solid
+     white cards on top of it read as "elevated" purely through contrast +
+     soft shadow — no border needed. Sidebar/card share the same near-white
+     elevated tone; the page canvas sits a clear step below both. */
+  --background: oklch(0.75 0.02 275);
   --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
+  --card: oklch(0.99 0.003 275);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
@@ -92,7 +93,7 @@
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --radius: 1rem;
-  --sidebar: oklch(1 0 0);
+  --sidebar: oklch(0.99 0.003 275);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -111,8 +112,6 @@
   --ember-foreground: oklch(0.16 0 0);
   --frost: oklch(0.82 0.14 185);
   --frost-foreground: oklch(0.16 0 0);
-  --glass: oklch(1 0 0 / 60%);
-  --glass-border: oklch(0.7 0.02 265 / 12%);
 
   /* Muscle-group categorical palette — validated with the dataviz skill's
      validator (adjacent-pair CVD check, matching this fixed render order). */
@@ -131,9 +130,8 @@
 
 .dark {
   /* Mirrors the light theme's hierarchy: background is the darkest canvas,
-     card/sidebar share the same raised tone one step lighter. Pushed toward
-     a true "void" — near-black with a cool violet undertone, not just dark
-     grey — so the aurora glow and glass panels have somewhere to live. */
+     card/sidebar share the same raised tone one step lighter, distinguished
+     by that lightness step alone rather than a border. */
   --background: oklch(0.1 0.015 280);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.19 0.014 275);
@@ -173,8 +171,6 @@
   --ember-foreground: oklch(0.16 0 0);
   --frost: oklch(0.85 0.13 185);
   --frost-foreground: oklch(0.16 0 0);
-  --glass: oklch(0.3 0.03 275 / 45%);
-  --glass-border: oklch(1 0 0 / 10%);
 
   --muscle-chest: #e66767;
   --muscle-back: #3987e5;

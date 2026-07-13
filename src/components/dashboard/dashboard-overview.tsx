@@ -1,6 +1,5 @@
 import { User, Activity, Dumbbell, Trophy } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { WidgetCard } from "@/components/dashboard/widget-card";
 import { ProfileCard } from "@/components/dashboard/profile-card";
 import { ActivityStrip } from "@/components/dashboard/activity-strip";
@@ -21,7 +20,7 @@ export function DashboardOverview({
 }) {
   return (
     <div className="flex flex-col gap-4 md:h-[calc(100vh-8rem)] md:overflow-hidden">
-      <div className="relative shrink-0 overflow-hidden rounded-2xl border border-glass-border bg-glass px-6 py-8 shadow-[0_8px_32px_rgba(0,0,0,0.08)] backdrop-blur-xl sm:px-8 md:rounded-3xl dark:shadow-[0_8px_32px_rgba(0,0,0,0.45)]">
+      <div className="relative shrink-0 overflow-hidden rounded-2xl bg-card px-6 py-8 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_20px_40px_-16px_rgba(0,0,0,0.18)] sm:px-8 md:rounded-3xl dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_20px_40px_-16px_rgba(0,0,0,0.6)]">
         <WolfMark
           showDetail={false}
           className="pointer-events-none absolute -top-8 -right-8 size-48 text-brand/6 dark:text-brand/20"
@@ -55,7 +54,7 @@ export function DashboardOverview({
               color="bg-brand/12 text-brand"
               index={1}
               className="order-1 h-auto flex-none md:order-1 md:h-full md:min-w-0 md:flex-1"
-              cardClassName={cn(cardRounding, "border-brand/8 bg-brand/22 dark:border-brand/10 dark:bg-brand/30")}
+              cardClassName={cardRounding}
             >
               <ProfileCard profile={stats.profile} />
             </WidgetCard>
@@ -66,7 +65,7 @@ export function DashboardOverview({
               color="bg-muscle-back/12 text-muscle-back"
               index={2}
               className="order-2 min-h-0 flex-1 md:order-2 md:min-w-0"
-              cardClassName={cn(cardRounding, "border-muscle-back/8 bg-muscle-back/24 dark:border-muscle-back/10 dark:bg-muscle-back/32")}
+              cardClassName={cardRounding}
               contentClassName="flex min-h-0 flex-1 flex-col"
             >
               <SuggestedSessions suggestedSessions={stats.suggestedSessions} />

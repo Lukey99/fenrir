@@ -27,7 +27,7 @@ export function BottomTabBar() {
   return (
     <>
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-glass-border bg-glass pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 bg-sidebar pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_24px_-8px_rgba(0,0,0,0.08)] md:hidden dark:shadow-[0_-4px_24px_-8px_rgba(0,0,0,0.5)]"
         aria-label="Navigation principale"
       >
         <div className="flex items-stretch justify-around">
@@ -85,7 +85,7 @@ export function BottomTabBar() {
 
       <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
         <SheetContent side="bottom" className="rounded-t-3xl p-0">
-          <SheetHeader className="border-b border-glass-border px-6 py-4">
+          <SheetHeader className="border-b border-border px-6 py-4">
             <SheetTitle>Plus</SheetTitle>
           </SheetHeader>
           <div className="flex flex-col gap-1 px-3 py-3">
