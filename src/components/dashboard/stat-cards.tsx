@@ -1,32 +1,40 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Flame, CalendarDays, Timer, type LucideIcon } from "lucide-react";
+import { Flame, CalendarDays, Timer, Trophy, type LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { CountUp } from "@/components/ui/count-up";
 
 const cardRounding = "rounded-2xl md:rounded-3xl";
 
-type Stat = { label: string; value: number; icon: LucideIcon; accent?: boolean };
+type Stat = { label: string; value: number | null; suffix?: string; icon: LucideIcon; accent?: boolean };
 
 export function StatCards({
   counts,
+  weightGoal,
 }: {
   counts: {
     totalSessions: number;
     sessionsThisWeek: number;
     inProgressSessions: number;
   };
+  weightGoal: { targetWeight: number; remaining: number; progressPercent: number } | null;
 }) {
   const stats: Stat[] = [
     { label: "Séances totales", value: counts.totalSessions, icon: Flame, accent: true },
     { label: "Cette semaine", value: counts.sessionsThisWeek, icon: CalendarDays },
     { label: "En cours", value: counts.inProgressSessions, icon: Timer },
+    {
+      label: "Objectif de poids",
+      value: weightGoal ? weightGoal.progressPercent : null,
+      suffix: "%",
+      icon: Trophy,
+    },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
       {stats.map((stat, i) => (
         <motion.div
           key={stat.label}
@@ -57,7 +65,11 @@ export function StatCards({
               <stat.icon className="size-3" />
             </span>
           </div>
-          <CountUp value={stat.value} className="font-heading text-xl font-bold" />
+          {stat.value !== null ? (
+            <CountUp value={stat.value} suffix={stat.suffix} className="font-heading text-xl font-bold" />
+          ) : (
+            <span className="font-heading text-xl font-bold text-muted-foreground">—</span>
+          )}
         </motion.div>
       ))}
     </div>

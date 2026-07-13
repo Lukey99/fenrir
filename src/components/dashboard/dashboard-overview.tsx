@@ -1,15 +1,13 @@
 import Link from "next/link";
 import { User, Activity, Trophy } from "lucide-react";
 
-import { MagneticButton } from "@/components/ui/magnetic-button";
+import { Button } from "@/components/ui/button";
 import { WidgetCard } from "@/components/dashboard/widget-card";
 import { StatCards } from "@/components/dashboard/stat-cards";
 import { ProfileCard } from "@/components/dashboard/profile-card";
 import { ActivityStrip } from "@/components/dashboard/activity-strip";
 import { TodaySessionCard } from "@/components/dashboard/today-session-card";
 import { RecentRecordsTable } from "@/components/dashboard/recent-records-table";
-import { WeightGoalRing } from "@/components/dashboard/weight-goal-ring";
-import { ActiveSessionCard } from "@/components/dashboard/active-session-card";
 import { KineticHero } from "@/components/dashboard/kinetic-hero";
 import type { DashboardStatsDTO } from "@/types/dashboard";
 
@@ -31,21 +29,21 @@ export function DashboardOverview({
             Voici un aperçu de ton entraînement.
           </p>
         </div>
-        <MagneticButton
+        <Button
           size="lg"
           className="h-12 px-7 text-base"
           render={<Link href="/programs" />}
           nativeButton={false}
         >
           Nouveau programme
-        </MagneticButton>
+        </Button>
       </div>
 
       <div className="shrink-0">
-        <StatCards counts={stats.counts} />
+        <StatCards counts={stats.counts} weightGoal={stats.weightGoal} />
       </div>
 
-      <div className="grid shrink-0 grid-cols-1 gap-3 md:h-72 md:grid-cols-3 md:overflow-hidden">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 md:grid-cols-3 md:overflow-hidden">
         <WidgetCard
           title="Activité (14 jours)"
           icon={<Activity className="size-3.5" />}
@@ -68,7 +66,7 @@ export function DashboardOverview({
         </WidgetCard>
       </div>
 
-      <div className="grid shrink-0 grid-cols-1 gap-3 md:h-40 md:grid-cols-2 md:overflow-hidden">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 md:grid-cols-2 md:overflow-hidden">
         <TodaySessionCard suggestedSessions={stats.suggestedSessions} />
 
         <WidgetCard
@@ -80,21 +78,6 @@ export function DashboardOverview({
         >
           <RecentRecordsTable recentPRs={stats.recentPRs} />
         </WidgetCard>
-      </div>
-
-      <div className="grid grid-cols-1 gap-3 md:min-h-0 md:flex-1 md:grid-cols-2 md:overflow-hidden">
-        <WidgetCard
-          title="Objectif de poids"
-          icon={<Trophy className="size-3.5" />}
-          color="bg-frost/20 text-frost-foreground"
-          index={4}
-          className={stats.activeSession ? undefined : "md:col-span-2"}
-          cardClassName={cardRounding}
-        >
-          <WeightGoalRing weightGoal={stats.weightGoal} />
-        </WidgetCard>
-
-        {stats.activeSession && <ActiveSessionCard activeSession={stats.activeSession} />}
       </div>
     </div>
   );
