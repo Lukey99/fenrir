@@ -4,7 +4,7 @@ import { SidebarNav } from "@/components/app-shell/sidebar-nav";
 
 export function Sidebar() {
   return (
-    <aside className="hidden w-64 shrink-0 border-r bg-sidebar md:flex md:flex-col">
+    <aside className="hidden w-64 shrink-0 border-r border-glass-border bg-sidebar md:flex md:flex-col dark:bg-glass dark:backdrop-blur-xl">
       <div className="flex h-16 items-center gap-2 px-6">
         <Link
           href="/dashboard"
