@@ -5,18 +5,6 @@ import { motion } from "framer-motion";
 export function AuthGlow() {
   return (
     <>
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 -top-40 h-96 bg-[radial-gradient(closest-side,color-mix(in_oklch,var(--brand)_18%,transparent),transparent)] dark:bg-[radial-gradient(closest-side,color-mix(in_oklch,var(--brand)_38%,transparent),transparent)]"
-        animate={{ scale: [1, 1.08, 1], opacity: [0.9, 1, 0.9] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-32 left-1/4 size-80 rounded-full bg-ember opacity-15 blur-3xl dark:opacity-20"
-        animate={{ scale: [1, 1.15, 1], x: [0, 20, 0] }}
-        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut", delay: 3 }}
-      />
       <motion.svg
         aria-hidden
         viewBox="0 0 120 120"
