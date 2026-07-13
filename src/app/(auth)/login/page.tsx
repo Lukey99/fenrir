@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 
 import { loginSchema, type LoginInput } from "@/server/validators/auth";
-import { Button } from "@/components/ui/button";
+import { MagneticButton } from "@/components/ui/magnetic-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -77,9 +77,14 @@ export default function LoginPage() {
               )}
             </div>
             {serverError && <p className="text-sm text-destructive">{serverError}</p>}
-            <Button type="submit" onClick={handleSubmit(onSubmit)} className="w-full" disabled={isSubmitting}>
+            <MagneticButton
+              type="submit"
+              onClick={handleSubmit(onSubmit)}
+              className="w-full"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Connexion..." : "Se connecter"}
-            </Button>
+            </MagneticButton>
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Pas encore de compte ?{" "}

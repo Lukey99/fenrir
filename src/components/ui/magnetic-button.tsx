@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { ComponentProps } from "react";
 
 /** Wraps Button with a physics-based pull toward the cursor — the button
@@ -40,7 +41,7 @@ export function MagneticButton({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ x: springX, y: springY }}
-      className="inline-block"
+      className={cn("inline-block", className)}
     >
       <Button className={className} {...props} />
     </motion.div>

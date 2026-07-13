@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 
 import { registerSchema, type RegisterInput } from "@/server/validators/auth";
-import { Button } from "@/components/ui/button";
+import { MagneticButton } from "@/components/ui/magnetic-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -96,9 +96,14 @@ export default function RegisterPage() {
               )}
             </div>
             {serverError && <p className="text-sm text-destructive">{serverError}</p>}
-            <Button type="submit" onClick={handleSubmit(onSubmit)} className="w-full" disabled={isSubmitting}>
+            <MagneticButton
+              type="submit"
+              onClick={handleSubmit(onSubmit)}
+              className="w-full"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Création..." : "Créer mon compte"}
-            </Button>
+            </MagneticButton>
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Déjà un compte ?{" "}
