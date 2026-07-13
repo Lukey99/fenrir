@@ -50,7 +50,7 @@ export function StatCards({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: i * 0.04, ease: "easeOut" }}
           className={cn(
-            "flex flex-col gap-2 p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_20px_40px_-16px_rgba(0,0,0,0.18)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_20px_40px_-16px_rgba(0,0,0,0.6)]",
+            "flex flex-col gap-2 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_20px_40px_-16px_rgba(0,0,0,0.18)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_20px_40px_-16px_rgba(0,0,0,0.6)]",
             cardRounding,
             stat.accent ? "bg-(image:--brand-gradient) text-brand-foreground" : "bg-card"
           )}
