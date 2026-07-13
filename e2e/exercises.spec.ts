@@ -88,11 +88,26 @@ test.describe("Base d'exercices", () => {
     await page.goto("/exercises");
     await page.getByPlaceholder("Rechercher un exercice...").fill("Exercice Programme Custom");
     await page.getByRole("button", { name: "Supprimer l'exercice" }).click();
-    await page.getByRole("button", { name: "Supprimer", exact: true }).click();
+
+    // Wait for the DELETE round-trip itself, not just the click — sonner's
+    // default toast auto-dismisses after ~4s, and asserting on it without
+    // pinning to the actual response risks losing that race on a slow CI
+    // runner (the toast can appear and disappear before the assertion's
+    // own polling ever gets a look at it).
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (res) => /\/api\/exercises\/[^/]+$/.test(res.url()) && res.request().method() === "DELETE"
+      ),
+      page.getByRole("button", { name: "Supprimer", exact: true }).click(),
+    ]);
+    expect(response.ok()).toBe(false);
 
     // Le toast d'erreur, distinct du texte statique de la modale de confirmation
     // (qui contient un libellé similaire) — on cible le début propre au toast.
-    await expect(page.getByText(/^Cet exercice est utilisé/)).toBeVisible();
+    // Timeout élargi : le toast de sonner se ferme tout seul après ~4s, donc un
+    // runner CI un peu lent entre la réponse réseau (déjà attendue ci-dessus)
+    // et le rendu React ne doit pas suffire à rater la fenêtre.
+    await expect(page.getByText(/^Cet exercice est utilisé/)).toBeVisible({ timeout: 8000 });
     await expect(page.getByText("Exercice Programme Custom", { exact: true }).first()).toBeVisible();
   });
 });
