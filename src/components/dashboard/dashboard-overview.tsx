@@ -5,6 +5,7 @@ import { ProfileCard } from "@/components/dashboard/profile-card";
 import { ActivityStrip } from "@/components/dashboard/activity-strip";
 import { SuggestedSessions } from "@/components/dashboard/suggested-sessions";
 import { RecentRecordsTable } from "@/components/dashboard/recent-records-table";
+import { KineticHero } from "@/components/dashboard/kinetic-hero";
 import { WolfMark } from "@/components/icons/wolf-mark";
 import type { DashboardStatsDTO } from "@/types/dashboard";
 
@@ -19,24 +20,13 @@ export function DashboardOverview({
 }) {
   return (
     <div className="flex flex-col gap-4 md:h-[calc(100vh-8rem)] md:overflow-hidden">
-      <div className="relative shrink-0 overflow-hidden rounded-2xl border bg-card px-6 py-8 shadow-sm sm:px-8 md:rounded-3xl">
+      <div className="relative shrink-0 overflow-hidden rounded-2xl border bg-card px-6 py-8 shadow-sm sm:px-8 md:rounded-3xl dark:border-glass-border dark:bg-glass dark:shadow-[0_8px_32px_rgba(0,0,0,0.45)] dark:backdrop-blur-xl">
         <WolfMark
           showDetail={false}
-          className="pointer-events-none absolute -top-8 -right-8 size-48 text-brand/6 dark:text-brand/12"
+          className="pointer-events-none absolute -top-8 -right-8 size-48 text-brand/6 dark:text-brand/20"
         />
         <div className="relative">
-          <h1 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-            Bienvenue
-            {userName && (
-              <>
-                {", "}
-                <span className="bg-(image:--brand-gradient) bg-clip-text text-transparent">
-                  {userName}
-                </span>
-              </>
-            )}{" "}
-            👋
-          </h1>
+          <KineticHero userName={userName} />
           <p className="mt-2 text-muted-foreground">
             Voici un aperçu de ton entraînement.
           </p>

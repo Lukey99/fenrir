@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { useUnit } from "@/hooks/use-unit";
-import { Button } from "@/components/ui/button";
+import { MagneticButton } from "@/components/ui/magnetic-button";
 
 type PR = { exerciseId: string; exerciseName: string; weight: number; reps: number; date: string };
 
@@ -21,7 +21,7 @@ export function RecentRecordsTable({ recentPRs }: { recentPRs: PR[] }) {
           Aucun record pour l&apos;instant. Ajoute ton premier record pour suivre tes
           performances au fil du temps.
         </p>
-        <Button
+        <MagneticButton
           size="sm"
           variant="outline"
           className="w-fit"
@@ -29,7 +29,7 @@ export function RecentRecordsTable({ recentPRs }: { recentPRs: PR[] }) {
           nativeButton={false}
         >
           Ajouter un record
-        </Button>
+        </MagneticButton>
       </div>
     );
   }

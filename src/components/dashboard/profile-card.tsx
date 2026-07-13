@@ -4,14 +4,28 @@ import Link from "next/link";
 
 import { useUnit } from "@/hooks/use-unit";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { CountUp } from "@/components/ui/count-up";
 import { initials } from "@/lib/utils";
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({
+  label,
+  value,
+  countUp,
+}: {
+  label: string;
+  value: string;
+  /** When set, animates in as a count-up instead of rendering `value` directly. */
+  countUp?: { value: number; decimals?: number; suffix?: string };
+}) {
   return (
     <div className="min-w-0 md:flex md:w-full md:items-center md:justify-between md:gap-3 md:border-b md:border-border md:py-1.5 md:last:border-0">
       <p className="text-xs text-muted-foreground md:order-1">{label}</p>
       <p className="truncate font-heading text-lg font-semibold md:order-2 md:text-sm">
-        {value}
+        {countUp ? (
+          <CountUp value={countUp.value} decimals={countUp.decimals} suffix={countUp.suffix} />
+        ) : (
+          value
+        )}
       </p>
     </div>
   );
@@ -48,7 +62,11 @@ export function ProfileCard({
       </div>
 
       <div className="grid grid-cols-3 gap-4 md:w-full md:grid-cols-1 md:gap-0">
-        <Stat label="Taille" value={profile.heightCm ? `${profile.heightCm} cm` : "—"} />
+        <Stat
+          label="Taille"
+          value={profile.heightCm ? `${profile.heightCm} cm` : "—"}
+          countUp={profile.heightCm ? { value: profile.heightCm, suffix: " cm" } : undefined}
+        />
         <Stat
           label="Poids"
           value={
@@ -56,8 +74,17 @@ export function ProfileCard({
               ? `${toDisplay(profile.latestBodyWeight)} ${unitLabel}`
               : "—"
           }
+          countUp={
+            profile.latestBodyWeight != null
+              ? { value: toDisplay(profile.latestBodyWeight), decimals: 1, suffix: ` ${unitLabel}` }
+              : undefined
+          }
         />
-        <Stat label="Séances" value={String(profile.totalSessions)} />
+        <Stat
+          label="Séances"
+          value={String(profile.totalSessions)}
+          countUp={{ value: profile.totalSessions }}
+        />
       </div>
     </div>
   );

@@ -42,6 +42,8 @@
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
   --color-brand-2: var(--brand-2);
+  --color-ember: var(--ember);
+  --color-frost: var(--frost);
   --color-muscle-chest: var(--muscle-chest);
   --color-muscle-back: var(--muscle-back);
   --color-muscle-shoulders: var(--muscle-shoulders);
@@ -98,10 +100,19 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.906 0.007 265);
   --sidebar-ring: oklch(0.708 0 0);
-  --brand: oklch(0.55 0.19 265);
+  --brand: oklch(0.58 0.23 273);
   --brand-foreground: oklch(0.985 0 0);
-  --brand-2: oklch(0.6 0.19 322);
+  --brand-2: oklch(0.64 0.24 330);
   --brand-gradient: linear-gradient(135deg, var(--brand), var(--brand-2));
+  /* Ember (warmth/energy — streaks, in-progress) and frost (celebration —
+     records, rare) round out the "forge & frost" duo alongside the brand
+     violet. Used sparingly, never as a third categorical color. */
+  --ember: oklch(0.7 0.19 45);
+  --ember-foreground: oklch(0.16 0 0);
+  --frost: oklch(0.82 0.14 185);
+  --frost-foreground: oklch(0.16 0 0);
+  --glass: oklch(1 0 0 / 60%);
+  --glass-border: oklch(0.7 0.02 265 / 12%);
 
   /* Muscle-group categorical palette — validated with the dataviz skill's
      validator (adjacent-pair CVD check, matching this fixed render order). */
@@ -120,20 +131,22 @@
 
 .dark {
   /* Mirrors the light theme's hierarchy: background is the darkest canvas,
-     card/sidebar share the same raised tone one step lighter. */
-  --background: oklch(0.13 0.006 265);
+     card/sidebar share the same raised tone one step lighter. Pushed toward
+     a true "void" — near-black with a cool violet undertone, not just dark
+     grey — so the aurora glow and glass panels have somewhere to live. */
+  --background: oklch(0.1 0.015 280);
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.215 0.007 265);
+  --card: oklch(0.19 0.014 275);
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.215 0.007 265);
+  --popover: oklch(0.19 0.014 275);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.25 0.008 265);
+  --secondary: oklch(0.25 0.015 275);
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.25 0.008 265);
+  --muted: oklch(0.25 0.015 275);
   --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.25 0.008 265);
+  --accent: oklch(0.25 0.015 275);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
@@ -144,18 +157,24 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.215 0.007 265);
+  --sidebar: oklch(0.16 0.016 278);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.25 0.008 265);
+  --sidebar-accent: oklch(0.25 0.015 275);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
-  --brand: oklch(0.62 0.19 265);
+  --brand: oklch(0.66 0.24 273);
   --brand-foreground: oklch(0.985 0 0);
-  --brand-2: oklch(0.65 0.19 322);
+  --brand-2: oklch(0.7 0.24 330);
   --brand-gradient: linear-gradient(135deg, var(--brand), var(--brand-2));
+  --ember: oklch(0.74 0.18 50);
+  --ember-foreground: oklch(0.16 0 0);
+  --frost: oklch(0.85 0.13 185);
+  --frost-foreground: oklch(0.16 0 0);
+  --glass: oklch(0.3 0.03 275 / 45%);
+  --glass-border: oklch(1 0 0 / 10%);
 
   --muscle-chest: #e66767;
   --muscle-back: #3987e5;
@@ -188,5 +207,19 @@
   .bg-noise {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     background-size: 180px 180px;
+  }
+
+  /* A slow drifting gradient sheen for kinetic headline text — pure CSS so it
+     never forces a heading into a client component. */
+  @keyframes sheen {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .text-sheen {
+    background-size: 220% 100%;
+    animation: sheen 6s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .text-sheen { animation: none; }
   }
 }

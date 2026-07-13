@@ -40,7 +40,7 @@ export function WidgetCard({
     >
       <Card
         className={cn(
-          "group h-full gap-3 py-5 transition-shadow duration-300 hover:shadow-lg hover:shadow-brand/10 hover:ring-brand/20",
+          "group relative h-full gap-3 overflow-hidden py-5 transition-shadow duration-300 hover:shadow-lg hover:shadow-brand/10 hover:ring-brand/20 dark:border dark:border-glass-border dark:bg-glass dark:shadow-[0_8px_32px_rgba(0,0,0,0.45)] dark:ring-0 dark:backdrop-blur-xl dark:hover:shadow-[0_8px_40px_rgba(157,92,255,0.25)]",
           cardClassName
         )}
       >

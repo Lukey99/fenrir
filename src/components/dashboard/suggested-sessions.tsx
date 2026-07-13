@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
+import { MagneticButton } from "@/components/ui/magnetic-button";
 import { StartSessionButton } from "@/components/workout/start-session-button";
 
 export function SuggestedSessions({
@@ -15,7 +15,7 @@ export function SuggestedSessions({
           Aucune séance prévue aujourd&apos;hui. Ajoute des jours préférés à tes
           programmes pour voir des suggestions ici.
         </p>
-        <Button
+        <MagneticButton
           size="sm"
           variant="outline"
           className="w-fit"
@@ -23,7 +23,7 @@ export function SuggestedSessions({
           nativeButton={false}
         >
           Voir mes programmes
-        </Button>
+        </MagneticButton>
       </div>
     );
   }
