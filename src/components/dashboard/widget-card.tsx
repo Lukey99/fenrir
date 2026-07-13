@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 export function WidgetCard({
   title,
@@ -12,6 +12,7 @@ export function WidgetCard({
   className,
   cardClassName,
   contentClassName,
+  plain = false,
   children,
 }: {
   title: string;
@@ -28,8 +29,44 @@ export function WidgetCard({
   /** Applied to the inner Card itself — e.g. rounding overrides. */
   cardClassName?: string;
   contentClassName?: string;
+  /** Render the title/icon header and content directly on the page canvas
+   * instead of inside a boxed Card — for widgets that shouldn't read as a
+   * distinct panel among the others. */
+  plain?: boolean;
   children: React.ReactNode;
 }) {
+  const header = (
+    <div className="flex flex-row items-center justify-between px-5">
+      <span className="font-heading text-sm leading-snug font-medium text-muted-foreground">
+        {title}
+      </span>
+      {icon && (
+        <span
+          className={cn(
+            "flex size-7 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6",
+            color
+          )}
+        >
+          {icon}
+        </span>
+      )}
+    </div>
+  );
+
+  if (plain) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, delay: index * 0.04, ease: "easeOut" }}
+        className={cn("group flex h-full flex-col gap-3", className)}
+      >
+        {header}
+        <div className={cn("px-5", contentClassName)}>{children}</div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -44,21 +81,7 @@ export function WidgetCard({
           cardClassName
         )}
       >
-        <CardHeader className="flex flex-row items-center justify-between px-5">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            {title}
-          </CardTitle>
-          {icon && (
-            <span
-              className={cn(
-                "flex size-7 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6",
-                color
-              )}
-            >
-              {icon}
-            </span>
-          )}
-        </CardHeader>
+        {header}
         <CardContent className={cn("px-5", contentClassName)}>{children}</CardContent>
       </Card>
     </motion.div>
