@@ -27,7 +27,8 @@ export function BottomTabBar() {
   return (
     <>
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 bg-sidebar pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_24px_-8px_rgba(0,0,0,0.08)] md:hidden dark:shadow-[0_-4px_24px_-8px_rgba(0,0,0,0.5)]"
+        className="fixed inset-x-4 z-40 rounded-2xl bg-sidebar shadow-[0_8px_32px_-8px_rgba(0,0,0,0.18)] md:hidden dark:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6)]"
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}
         aria-label="Navigation principale"
       >
         <div className="flex items-stretch justify-around">
