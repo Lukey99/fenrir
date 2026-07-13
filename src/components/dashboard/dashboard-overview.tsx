@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { User, Activity, Trophy, TrendingUp } from "lucide-react";
+import { User, Activity, Trophy } from "lucide-react";
 
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { WidgetCard } from "@/components/dashboard/widget-card";
 import { StatCards } from "@/components/dashboard/stat-cards";
 import { ProfileCard } from "@/components/dashboard/profile-card";
 import { ActivityStrip } from "@/components/dashboard/activity-strip";
-import { WeeklyVolumeChart } from "@/components/dashboard/weekly-volume-chart";
 import { TodaySessionCard } from "@/components/dashboard/today-session-card";
 import { RecentRecordsTable } from "@/components/dashboard/recent-records-table";
 import { WeightGoalRing } from "@/components/dashboard/weight-goal-ring";
@@ -14,7 +13,7 @@ import { ActiveSessionCard } from "@/components/dashboard/active-session-card";
 import { KineticHero } from "@/components/dashboard/kinetic-hero";
 import type { DashboardStatsDTO } from "@/types/dashboard";
 
-const cardRounding = "rounded-2xl md:rounded-3xl";
+const cardRounding = "rounded-2xl py-3 md:rounded-3xl md:[--card-spacing:--spacing(3)]";
 
 export function DashboardOverview({
   userName,
@@ -24,37 +23,40 @@ export function DashboardOverview({
   stats: DashboardStatsDTO;
 }) {
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="flex flex-col gap-2 md:h-[calc(100vh-8rem)] md:overflow-hidden">
+      <div className="flex shrink-0 flex-wrap items-end justify-between gap-4">
         <div>
           <KineticHero userName={userName} />
-          <p className="mt-2 text-muted-foreground">
+          <p className="mt-1 text-muted-foreground">
             Voici un aperçu de ton entraînement.
           </p>
         </div>
-        <MagneticButton render={<Link href="/programs" />} nativeButton={false}>
+        <MagneticButton
+          size="lg"
+          className="h-12 px-7 text-base"
+          render={<Link href="/programs" />}
+          nativeButton={false}
+        >
           Nouveau programme
         </MagneticButton>
       </div>
 
-      <StatCards counts={stats.counts} />
+      <div className="shrink-0">
+        <StatCards counts={stats.counts} />
+      </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid shrink-0 grid-cols-1 gap-3 md:h-72 md:grid-cols-3 md:overflow-hidden">
         <WidgetCard
-          title="Volume (7 jours)"
-          icon={<TrendingUp className="size-3.5" />}
-          color="bg-muscle-quadriceps/12 text-muscle-quadriceps"
+          title="Activité (14 jours)"
+          icon={<Activity className="size-3.5" />}
+          color="bg-muscle-back/12 text-muscle-back"
           index={0}
           className="md:col-span-2"
           cardClassName={cardRounding}
         >
-          <WeeklyVolumeChart weeklyVolume={stats.weeklyVolume} />
+          <ActivityStrip activity={stats.activity} />
         </WidgetCard>
 
-        <TodaySessionCard suggestedSessions={stats.suggestedSessions} />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <WidgetCard
           title="Mon profil"
           icon={<User className="size-3.5" />}
@@ -64,16 +66,10 @@ export function DashboardOverview({
         >
           <ProfileCard profile={stats.profile} />
         </WidgetCard>
+      </div>
 
-        <WidgetCard
-          title="Activité (14 jours)"
-          icon={<Activity className="size-3.5" />}
-          color="bg-muscle-back/12 text-muscle-back"
-          index={2}
-          cardClassName={cardRounding}
-        >
-          <ActivityStrip activity={stats.activity} />
-        </WidgetCard>
+      <div className="grid shrink-0 grid-cols-1 gap-3 md:h-40 md:grid-cols-2 md:overflow-hidden">
+        <TodaySessionCard suggestedSessions={stats.suggestedSessions} />
 
         <WidgetCard
           title="Records récents"
@@ -86,7 +82,7 @@ export function DashboardOverview({
         </WidgetCard>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 md:min-h-0 md:flex-1 md:grid-cols-2 md:overflow-hidden">
         <WidgetCard
           title="Objectif de poids"
           icon={<Trophy className="size-3.5" />}

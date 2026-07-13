@@ -17,7 +17,6 @@ export const dashboardService = {
       sessionSummaries,
       totalSessions,
       inProgressSessions,
-      activePrograms,
       activeSession,
       latestBodyWeightEntry,
       profile,
@@ -28,7 +27,6 @@ export const dashboardService = {
       workoutStatsRepository.findSessionSummariesSince(userId, daysAgo(13)),
       workoutStatsRepository.countCompletedSessionsForUser(userId),
       workoutStatsRepository.countInProgressSessionsForUser(userId),
-      programRepository.countActiveForUser(userId),
       workoutStatsRepository.findActiveSessionForUser(userId),
       bodyWeightRepository.findLatestForUser(userId),
       settingsService.getProfile(userId),
@@ -53,7 +51,6 @@ export const dashboardService = {
         exercises: { name: string; avgWeight: number; avgReps: number; sets: number }[];
       }[]
     >();
-    const volumeByDay = new Map<string, number>();
     for (const s of sessionSummaries) {
       const trainedExercises = s.exercises.filter(
         (se) => se.action !== "SKIPPED" && se.sets.length > 0
@@ -73,11 +70,6 @@ export const dashboardService = {
         })),
       });
       sessionsByDay.set(key, list);
-
-      const sessionVolume = trainedExercises
-        .flatMap((se) => se.sets)
-        .reduce((sum, set) => sum + toNumber(set.weight) * (set.reps ?? 0), 0);
-      volumeByDay.set(key, (volumeByDay.get(key) ?? 0) + sessionVolume);
     }
 
     // Both sides must stay UTC-anchored throughout (matches computeStreak's fix):
@@ -97,13 +89,10 @@ export const dashboardService = {
     const daysSinceMonday = (todayUtc.getUTCDay() + 6) % 7;
     const weekStart = new Date(todayUtc);
     weekStart.setUTCDate(weekStart.getUTCDate() - daysSinceMonday);
-    const weeklyVolume = Array.from({ length: 7 }, (_, i) => {
-      const date = new Date(weekStart);
-      date.setUTCDate(date.getUTCDate() + i);
-      const key = dateKey(date);
-      return { weekday: date.getUTCDay(), volumeKg: Math.round(volumeByDay.get(key) ?? 0) };
-    });
-    const sessionsThisWeek = Array.from(volumeByDay.keys()).filter((key) => key >= dateKey(weekStart)).length;
+    const weekStartKey = dateKey(weekStart);
+    const sessionsThisWeek = Array.from(sessionsByDay.entries())
+      .filter(([key]) => key >= weekStartKey)
+      .reduce((sum, [, sessions]) => sum + sessions.length, 0);
 
     const suggestedSessions = suggestedDays.map((day) => ({
       programDayId: day.id,
@@ -126,9 +115,7 @@ export const dashboardService = {
         totalSessions,
         sessionsThisWeek,
         inProgressSessions,
-        activePrograms,
       },
-      weeklyVolume,
       activeSession: activeSession
         ? {
             sessionId: activeSession.id,

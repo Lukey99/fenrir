@@ -28,14 +28,14 @@ export function ActiveSessionCard({
   }, []);
 
   return (
-    <div className="flex h-full flex-col justify-between gap-4 rounded-2xl bg-[oklch(0.18_0.012_275)] p-5 text-white shadow-[0_1px_3px_rgba(0,0,0,0.04),0_20px_40px_-16px_rgba(0,0,0,0.18)] md:rounded-3xl dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_20px_40px_-16px_rgba(0,0,0,0.6)]">
+    <div className="flex h-full flex-col justify-between gap-1 rounded-2xl bg-[oklch(0.18_0.012_275)] p-3 text-white shadow-[0_1px_3px_rgba(0,0,0,0.04),0_20px_40px_-16px_rgba(0,0,0,0.18)] md:rounded-3xl dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_20px_40px_-16px_rgba(0,0,0,0.6)]">
       <p className="text-sm text-white/70">Séance en cours</p>
       <div>
-        <p className="font-heading text-3xl font-bold tabular-nums">
+        <p className="font-heading text-2xl font-bold tabular-nums">
           {formatElapsed(now - startedAtMs)}
         </p>
         {activeSession.dayName && (
-          <p className="mt-1 truncate text-sm text-white/70">{activeSession.dayName}</p>
+          <p className="truncate text-sm text-white/70">{activeSession.dayName}</p>
         )}
       </div>
       <MagneticButton

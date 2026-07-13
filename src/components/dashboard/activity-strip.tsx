@@ -68,25 +68,25 @@ export function ActivityStrip({
   const todayKey = activity[activity.length - 1]?.date;
 
   return (
-    <div className="flex h-full flex-col justify-center gap-6">
+    <div className="flex h-full flex-col justify-center gap-3">
       <div
         role="img"
         aria-label={`${trainedCount} jour${trainedCount > 1 ? "s" : ""} entraîné${trainedCount > 1 ? "s" : ""} sur les 14 derniers`}
-        className="grid grid-cols-7 justify-items-center gap-y-3"
+        className="grid grid-cols-7 justify-items-center gap-y-2"
       >
         {activity.map((day) =>
           day.trained ? (
             <Popover key={day.date}>
-              <div className="flex flex-col items-center gap-1.5">
+              <div className="flex flex-col items-center gap-1">
                 <PopoverTrigger
                   openOnHover
                   delay={150}
                   className={cn(
-                    "flex size-10 items-center justify-center rounded-xl bg-(image:--brand-gradient) text-brand-foreground shadow-sm transition-transform hover:scale-105 sm:size-12 md:size-14",
+                    "flex size-8 items-center justify-center rounded-xl bg-(image:--brand-gradient) text-brand-foreground shadow-sm transition-transform hover:scale-105 sm:size-9 md:size-10",
                     day.date === todayKey && "ring-2 ring-brand ring-offset-2 ring-offset-card"
                   )}
                 >
-                  <Dumbbell className="size-4 sm:size-5" />
+                  <Dumbbell className="size-3.5 sm:size-4" />
                 </PopoverTrigger>
                 <span className="text-xs text-muted-foreground">
                   {weekdayLetters[day.weekday]}
@@ -97,11 +97,11 @@ export function ActivityStrip({
               </PopoverContent>
             </Popover>
           ) : (
-            <div key={day.date} className="flex flex-col items-center gap-1.5">
+            <div key={day.date} className="flex flex-col items-center gap-1">
               <div
                 title={formatFullDate(day.date)}
                 className={cn(
-                  "size-10 rounded-xl border border-dashed border-border/60 sm:size-12 md:size-14",
+                  "size-8 rounded-xl border border-dashed border-border/60 sm:size-9 md:size-10",
                   day.date === todayKey && "ring-2 ring-brand ring-offset-2 ring-offset-card"
                 )}
               />

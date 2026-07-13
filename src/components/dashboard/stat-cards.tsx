@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Flame, CalendarDays, Timer, Dumbbell, type LucideIcon } from "lucide-react";
+import { Flame, CalendarDays, Timer, type LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { CountUp } from "@/components/ui/count-up";
@@ -17,18 +17,16 @@ export function StatCards({
     totalSessions: number;
     sessionsThisWeek: number;
     inProgressSessions: number;
-    activePrograms: number;
   };
 }) {
   const stats: Stat[] = [
     { label: "Séances totales", value: counts.totalSessions, icon: Flame, accent: true },
     { label: "Cette semaine", value: counts.sessionsThisWeek, icon: CalendarDays },
     { label: "En cours", value: counts.inProgressSessions, icon: Timer },
-    { label: "Programmes actifs", value: counts.activePrograms, icon: Dumbbell },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
       {stats.map((stat, i) => (
         <motion.div
           key={stat.label}
@@ -36,7 +34,7 @@ export function StatCards({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: i * 0.04, ease: "easeOut" }}
           className={cn(
-            "flex flex-col gap-4 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_20px_40px_-16px_rgba(0,0,0,0.18)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_20px_40px_-16px_rgba(0,0,0,0.6)]",
+            "flex flex-col gap-1 p-3 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_20px_40px_-16px_rgba(0,0,0,0.18)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_20px_40px_-16px_rgba(0,0,0,0.6)]",
             cardRounding,
             stat.accent ? "bg-(image:--brand-gradient) text-brand-foreground" : "bg-card"
           )}
@@ -52,14 +50,14 @@ export function StatCards({
             </span>
             <span
               className={cn(
-                "flex size-7 shrink-0 items-center justify-center rounded-full",
+                "flex size-6 shrink-0 items-center justify-center rounded-full",
                 stat.accent ? "bg-white/20" : "bg-muted"
               )}
             >
-              <stat.icon className="size-3.5" />
+              <stat.icon className="size-3" />
             </span>
           </div>
-          <CountUp value={stat.value} className="font-heading text-3xl font-bold" />
+          <CountUp value={stat.value} className="font-heading text-xl font-bold" />
         </motion.div>
       ))}
     </div>

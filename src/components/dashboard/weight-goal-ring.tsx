@@ -28,21 +28,21 @@ export function WeightGoalRing({
     );
   }
 
-  const radius = 52;
+  const radius = 40;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - weightGoal.progressPercent / 100);
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-3">
-      <div className="relative flex size-32 items-center justify-center">
-        <svg viewBox="0 0 120 120" className="size-32 -rotate-90">
-          <circle cx="60" cy="60" r={radius} fill="none" strokeWidth="10" className="stroke-muted" />
+    <div className="flex h-full flex-col items-center justify-center gap-2">
+      <div className="relative flex size-24 items-center justify-center">
+        <svg viewBox="0 0 96 96" className="size-24 -rotate-90">
+          <circle cx="48" cy="48" r={radius} fill="none" strokeWidth="8" className="stroke-muted" />
           <motion.circle
-            cx="60"
-            cy="60"
+            cx="48"
+            cy="48"
             r={radius}
             fill="none"
-            strokeWidth="10"
+            strokeWidth="8"
             strokeLinecap="round"
             className="stroke-brand"
             style={{ strokeDasharray: circumference }}
@@ -51,7 +51,7 @@ export function WeightGoalRing({
             transition={{ duration: 1, ease: "easeOut" }}
           />
         </svg>
-        <span className="absolute font-heading text-2xl font-bold">
+        <span className="absolute font-heading text-xl font-bold">
           {weightGoal.progressPercent}%
         </span>
       </div>

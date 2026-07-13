@@ -43,10 +43,7 @@ export type DashboardStatsDTO = {
     totalSessions: number;
     sessionsThisWeek: number;
     inProgressSessions: number;
-    activePrograms: number;
   };
-  /** Monday..Sunday of the current week, oldest first. */
-  weeklyVolume: { weekday: number; volumeKg: number }[];
   activeSession: { sessionId: string; dayName: string | null; startedAt: string } | null;
   weightGoal: { targetWeight: number; remaining: number; progressPercent: number } | null;
 };

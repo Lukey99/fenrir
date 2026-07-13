@@ -18,7 +18,7 @@ function Stat({
   countUp?: { value: number; decimals?: number; suffix?: string };
 }) {
   return (
-    <div className="min-w-0 md:flex md:w-full md:items-center md:justify-between md:gap-3 md:border-b md:border-border md:py-1.5 md:last:border-0">
+    <div className="min-w-0 md:flex md:w-full md:items-center md:justify-between md:gap-3 md:border-b md:border-border md:py-1 md:last:border-0">
       <p className="text-xs text-muted-foreground md:order-1">{label}</p>
       <p className="truncate font-heading text-lg font-semibold md:order-2 md:text-sm">
         {countUp ? (
@@ -44,8 +44,8 @@ export function ProfileCard({
   const { unitLabel, toDisplay } = useUnit();
 
   return (
-    <div className="flex h-full min-h-0 flex-col justify-center gap-3 overflow-hidden md:items-center md:text-center">
-      <div className="flex items-center gap-4 md:flex-col md:gap-2">
+    <div className="flex h-full min-h-0 flex-col justify-center gap-2 overflow-hidden md:items-center md:text-center">
+      <div className="flex items-center gap-4 md:flex-col md:gap-1.5">
         <Avatar className="size-16">
           <AvatarFallback className="bg-brand text-xl text-brand-foreground">
             {initials(profile.name)}
