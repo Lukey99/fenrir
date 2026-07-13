@@ -7,11 +7,12 @@ import { StatCards } from "@/components/dashboard/stat-cards";
 import { ProfileCard } from "@/components/dashboard/profile-card";
 import { ActivityStrip } from "@/components/dashboard/activity-strip";
 import { TodaySessionCard } from "@/components/dashboard/today-session-card";
+import { LastSessionCard } from "@/components/dashboard/last-session-card";
 import { RecentRecordsTable } from "@/components/dashboard/recent-records-table";
 import { KineticHero } from "@/components/dashboard/kinetic-hero";
 import type { DashboardStatsDTO } from "@/types/dashboard";
 
-const cardRounding = "rounded-2xl py-3 md:rounded-3xl md:[--card-spacing:--spacing(3)]";
+const cardRounding = "rounded-2xl py-5 md:rounded-3xl md:[--card-spacing:--spacing(5)]";
 
 export function DashboardOverview({
   userName,
@@ -66,8 +67,10 @@ export function DashboardOverview({
         </WidgetCard>
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 md:grid-cols-2 md:overflow-hidden">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 md:grid-cols-3 md:overflow-hidden">
         <TodaySessionCard suggestedSessions={stats.suggestedSessions} />
+
+        <LastSessionCard lastSession={stats.lastSession} />
 
         <WidgetCard
           title="Records récents"

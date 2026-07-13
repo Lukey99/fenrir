@@ -8,7 +8,14 @@ import { CountUp } from "@/components/ui/count-up";
 
 const cardRounding = "rounded-2xl md:rounded-3xl";
 
-type Stat = { label: string; value: number | null; suffix?: string; icon: LucideIcon; accent?: boolean };
+type Stat = {
+  label: string;
+  value: number | null;
+  suffix?: string;
+  icon: LucideIcon;
+  accent?: boolean;
+  progress?: number;
+};
 
 export function StatCards({
   counts,
@@ -30,6 +37,7 @@ export function StatCards({
       value: weightGoal ? weightGoal.progressPercent : null,
       suffix: "%",
       icon: Trophy,
+      progress: weightGoal ? weightGoal.progressPercent : undefined,
     },
   ];
 
@@ -42,7 +50,7 @@ export function StatCards({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: i * 0.04, ease: "easeOut" }}
           className={cn(
-            "flex flex-col gap-1 p-3 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_20px_40px_-16px_rgba(0,0,0,0.18)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_20px_40px_-16px_rgba(0,0,0,0.6)]",
+            "flex flex-col gap-2 p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_20px_40px_-16px_rgba(0,0,0,0.18)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_20px_40px_-16px_rgba(0,0,0,0.6)]",
             cardRounding,
             stat.accent ? "bg-(image:--brand-gradient) text-brand-foreground" : "bg-card"
           )}
@@ -69,6 +77,25 @@ export function StatCards({
             <CountUp value={stat.value} suffix={stat.suffix} className="font-heading text-xl font-bold" />
           ) : (
             <span className="font-heading text-xl font-bold text-muted-foreground">—</span>
+          )}
+          {stat.progress !== undefined && (
+            <div
+              role="progressbar"
+              aria-valuenow={stat.progress}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              className={cn(
+                "h-1.5 overflow-hidden rounded-full",
+                stat.accent ? "bg-white/20" : "bg-muted"
+              )}
+            >
+              <motion.div
+                className={cn("h-full rounded-full", stat.accent ? "bg-white" : "bg-brand")}
+                initial={{ width: 0 }}
+                animate={{ width: `${stat.progress}%` }}
+                transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+              />
+            </div>
           )}
         </motion.div>
       ))}

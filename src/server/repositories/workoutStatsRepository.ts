@@ -142,6 +142,31 @@ export const workoutStatsRepository = {
     });
   },
 
+  /** The single most recent session regardless of how long ago it was — for the
+   * dashboard's "Dernière séance" card, which shouldn't go blank just because
+   * the 14-day activity window (findSessionSummariesSince) didn't catch it. */
+  findMostRecentSessionForUser(userId: string) {
+    return prisma.workoutSession.findFirst({
+      where: { userId, status: { in: [...activeStatuses] } },
+      orderBy: { startedAt: "desc" },
+      select: {
+        id: true,
+        startedAt: true,
+        programDay: { select: { name: true } },
+        exercises: {
+          select: {
+            action: true,
+            exercise: { select: { name: true } },
+            sets: {
+              where: { completed: true, isWarmup: false },
+              select: { id: true },
+            },
+          },
+        },
+      },
+    });
+  },
+
   /** Session summaries since a given date — used to build the dashboard's activity strip
    * (day-by-day trained/not, plus a per-session breakdown for the hover popover). */
   findSessionSummariesSince(userId: string, since: Date) {

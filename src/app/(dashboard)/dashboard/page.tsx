@@ -16,6 +16,9 @@ export default async function DashboardPage() {
     activeSession: rawStats.activeSession
       ? { ...rawStats.activeSession, startedAt: rawStats.activeSession.startedAt.toISOString() }
       : null,
+    lastSession: rawStats.lastSession
+      ? { ...rawStats.lastSession, date: rawStats.lastSession.date.toISOString() }
+      : null,
   };
 
   return <DashboardOverview userName={session.user.name} stats={stats} />;

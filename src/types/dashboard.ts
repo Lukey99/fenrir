@@ -46,4 +46,10 @@ export type DashboardStatsDTO = {
   };
   activeSession: { sessionId: string; dayName: string | null; startedAt: string } | null;
   weightGoal: { targetWeight: number; remaining: number; progressPercent: number } | null;
+  lastSession: {
+    sessionId: string;
+    dayName: string | null;
+    date: string;
+    exercises: string[];
+  } | null;
 };

@@ -19,7 +19,7 @@ export function TodaySessionCard({
   if (suggestedSessions.length === 0) {
     return (
       <div
-        className={`flex h-full flex-col justify-between gap-2 bg-card p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_20px_40px_-16px_rgba(0,0,0,0.18)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_20px_40px_-16px_rgba(0,0,0,0.6)] ${cardRounding}`}
+        className={`flex h-full flex-col justify-between gap-3 bg-card p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_20px_40px_-16px_rgba(0,0,0,0.18)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_20px_40px_-16px_rgba(0,0,0,0.6)] ${cardRounding}`}
       >
         <div>
           <p className="font-heading text-base font-medium">Séance du jour</p>
@@ -45,7 +45,7 @@ export function TodaySessionCard({
 
   return (
     <div
-      className={`flex h-full flex-col justify-between gap-2 bg-(image:--brand-gradient) p-4 text-brand-foreground shadow-[0_1px_3px_rgba(0,0,0,0.04),0_20px_40px_-16px_rgba(0,0,0,0.18)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_20px_40px_-16px_rgba(0,0,0,0.6)] ${cardRounding}`}
+      className={`flex h-full flex-col justify-between gap-3 bg-(image:--brand-gradient) p-5 text-brand-foreground shadow-[0_1px_3px_rgba(0,0,0,0.04),0_20px_40px_-16px_rgba(0,0,0,0.18)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_20px_40px_-16px_rgba(0,0,0,0.6)] ${cardRounding}`}
     >
       <div>
         <div className="flex items-center gap-2 text-sm text-brand-foreground/80">

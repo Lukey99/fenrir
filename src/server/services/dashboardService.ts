@@ -18,6 +18,7 @@ export const dashboardService = {
       totalSessions,
       inProgressSessions,
       activeSession,
+      mostRecentSession,
       latestBodyWeightEntry,
       profile,
       suggestedDays,
@@ -28,6 +29,7 @@ export const dashboardService = {
       workoutStatsRepository.countCompletedSessionsForUser(userId),
       workoutStatsRepository.countInProgressSessionsForUser(userId),
       workoutStatsRepository.findActiveSessionForUser(userId),
+      workoutStatsRepository.findMostRecentSessionForUser(userId),
       bodyWeightRepository.findLatestForUser(userId),
       settingsService.getProfile(userId),
       programRepository.findTodaysSuggestedDaysForUser(userId, new Date().getDay()),
@@ -128,6 +130,16 @@ export const dashboardService = {
             targetWeight: weightGoal.targetWeight,
             remaining: weightGoal.remaining,
             progressPercent: weightGoal.progressPercent,
+          }
+        : null,
+      lastSession: mostRecentSession
+        ? {
+            sessionId: mostRecentSession.id,
+            dayName: mostRecentSession.programDay?.name ?? null,
+            date: mostRecentSession.startedAt,
+            exercises: mostRecentSession.exercises
+              .filter((se) => se.action !== "SKIPPED" && se.sets.length > 0)
+              .map((se) => se.exercise.name),
           }
         : null,
     };
