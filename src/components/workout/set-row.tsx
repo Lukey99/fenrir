@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Check, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -113,9 +114,21 @@ export function SetRow({
         variant={set.completed ? "default" : "outline"}
         aria-label="Marquer la série comme terminée"
         onClick={toggleComplete}
-        className={cn("ml-auto", set.completed && "bg-brand text-brand-foreground hover:bg-brand/85")}
+        className={cn("ml-auto overflow-hidden", set.completed && "bg-brand text-brand-foreground hover:bg-brand/85")}
       >
-        <Check className="size-4" />
+        {/* A repeatable pop, not just a static swap — this is the single most
+            tapped control in the app, worth the extra frame of feedback. */}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.span
+            key={set.completed ? "done" : "todo"}
+            initial={{ scale: 0.3, rotate: -25, opacity: 0 }}
+            animate={{ scale: 1, rotate: 0, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 500, damping: 15 }}
+            className="flex"
+          >
+            <Check className="size-4" />
+          </motion.span>
+        </AnimatePresence>
       </Button>
       <Button size="icon" variant="ghost" aria-label="Retirer la série" onClick={handleRemove}>
         <Trash2 className="size-3.5" />
