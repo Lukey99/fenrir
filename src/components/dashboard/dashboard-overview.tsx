@@ -55,7 +55,7 @@ export function DashboardOverview({
               color="bg-brand/12 text-brand"
               index={1}
               className="order-1 h-auto flex-none md:order-1 md:h-full md:min-w-0 md:flex-1"
-              cardClassName={cn(cardRounding, "border-brand/25 bg-brand/10 dark:border-brand/30 dark:bg-brand/16")}
+              cardClassName={cn(cardRounding, "border-brand/8 bg-brand/22 dark:border-brand/10 dark:bg-brand/30")}
             >
               <ProfileCard profile={stats.profile} />
             </WidgetCard>
@@ -66,7 +66,7 @@ export function DashboardOverview({
               color="bg-muscle-back/12 text-muscle-back"
               index={2}
               className="order-2 min-h-0 flex-1 md:order-2 md:min-w-0"
-              cardClassName={cn(cardRounding, "border-muscle-back/30 bg-muscle-back/14 dark:border-muscle-back/35 dark:bg-muscle-back/20")}
+              cardClassName={cn(cardRounding, "border-muscle-back/8 bg-muscle-back/24 dark:border-muscle-back/10 dark:bg-muscle-back/32")}
               contentClassName="flex min-h-0 flex-1 flex-col"
             >
               <SuggestedSessions suggestedSessions={stats.suggestedSessions} />
