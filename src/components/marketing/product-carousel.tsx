@@ -103,7 +103,7 @@ export function ProductCarousel() {
                 else if (info.offset.x > 60) go(index - 1);
               }}
             >
-              <Screenshot name={active.screenshot} variant="carousel" alt={active.title} />
+              <Screenshot name={active.screenshot} alt={active.title} />
             </motion.div>
           </AnimatePresence>
         </div>
