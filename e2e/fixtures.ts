@@ -46,6 +46,23 @@ export async function createProgramWithExercise(
   await page.getByRole("button", { name: "Ajouter un exercice" }).click();
   await page.getByPlaceholder("Rechercher un exercice...").fill(exerciseName);
   await page.getByText(exerciseName, { exact: true }).click();
-  await page.getByRole("button", { name: "Ajouter" }).click();
+
+  // Wait for the actual POST round-trip, not just the click — the exercise
+  // picker keeps its filtered results (including this exact name) rendered
+  // in the still-open dialog while the request is in flight, so asserting
+  // visibility without pinning to the response is a false positive: it can
+  // pass before the row is ever persisted, and a subsequent page.goto can
+  // then abort the still-pending request outright (net::ERR_ABORTED),
+  // silently losing the "add exercise to program" write.
+  const [response] = await Promise.all([
+    page.waitForResponse(
+      (res) => /\/api\/programs\/[^/]+\/days\/[^/]+\/exercises$/.test(res.url()) && res.request().method() === "POST"
+    ),
+    page.getByRole("button", { name: "Ajouter" }).click(),
+  ]);
+  if (!response.ok()) {
+    throw new Error(`Échec de l'ajout de l'exercice "${exerciseName}" au programme : ${response.status()}`);
+  }
+
   await expect(page.getByText(exerciseName, { exact: true })).toBeVisible();
 }
