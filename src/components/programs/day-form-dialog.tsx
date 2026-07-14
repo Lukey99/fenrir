@@ -160,7 +160,7 @@ export function DayFormDialog(props: CreateProps | EditProps) {
           </div>
           {serverError && <p className="text-sm text-destructive">{serverError}</p>}
           <DialogFooter>
-            <Button type="submit" onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>
+            <Button type="button" onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>
               {isSubmitting ? "Enregistrement..." : "Enregistrer"}
             </Button>
           </DialogFooter>

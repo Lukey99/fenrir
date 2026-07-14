@@ -78,7 +78,7 @@ export default function LoginPage() {
             </div>
             {serverError && <p className="text-sm text-destructive">{serverError}</p>}
             <MagneticButton
-              type="submit"
+              type="button"
               onClick={handleSubmit(onSubmit)}
               className="w-full"
               disabled={isSubmitting}

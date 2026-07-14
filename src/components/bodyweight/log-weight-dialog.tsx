@@ -113,7 +113,7 @@ export function LogWeightDialog({ onLogged }: { onLogged: () => void }) {
 
           <DialogFooter>
             <Button
-              type="submit"
+              type="button"
               onClick={handleSubmit(onSubmit)}
               disabled={isSubmitting}
               className={cn(isSubmitting && "opacity-70")}

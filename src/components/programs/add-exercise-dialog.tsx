@@ -211,7 +211,7 @@ export function AddExerciseDialog({
 
             <DialogFooter>
               <Button
-                type="submit"
+                type="button"
                 onClick={handleSubmit(onSubmit)}
                 disabled={isSubmitting}
                 className={cn(isSubmitting && "opacity-70")}
