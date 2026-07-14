@@ -1,5 +1,6 @@
 import { exerciseRepository } from "@/server/repositories/exerciseRepository";
 import { NotFoundError } from "@/server/errors";
+import { Prisma } from "@/generated/prisma/client";
 import type { CreateExerciseInput } from "@/server/validators/exercise";
 
 export class DuplicateExerciseError extends Error {
@@ -32,7 +33,18 @@ export const exerciseService = {
     if (existing) {
       throw new DuplicateExerciseError(input.name);
     }
-    return exerciseRepository.create(userId, input);
+    // The check above is a fast-path, not a guarantee — two concurrent requests
+    // for the same name can both pass it before either commits. The @@unique
+    // constraint on (userId, name) is the real guard; translate its violation
+    // into the same domain error instead of letting a raw P2002 leak out.
+    try {
+      return await exerciseRepository.create(userId, input);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        throw new DuplicateExerciseError(input.name);
+      }
+      throw error;
+    }
   },
 
   async updateCustom(userId: string, id: string, input: CreateExerciseInput) {
@@ -43,7 +55,14 @@ export const exerciseService = {
       throw new DuplicateExerciseError(input.name);
     }
 
-    return exerciseRepository.update(id, input);
+    try {
+      return await exerciseRepository.update(id, input);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        throw new DuplicateExerciseError(input.name);
+      }
+      throw error;
+    }
   },
 
   async removeCustom(userId: string, id: string) {

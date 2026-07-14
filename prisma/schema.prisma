@@ -149,6 +149,7 @@ model Exercise {
   sessionExercises    SessionExercise[]
   personalRecords     PersonalRecord[]
 
+  @@unique([userId, name])
   @@index([muscleGroup])
   @@index([userId])
 }
