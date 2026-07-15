@@ -23,6 +23,9 @@ import { LogWeightDialog } from "@/components/bodyweight/log-weight-dialog";
 import { GoalDialog } from "@/components/bodyweight/goal-dialog";
 import { HeightPrompt } from "@/components/bodyweight/height-prompt";
 import { WeightChart } from "@/components/bodyweight/weight-chart";
+import { Pagination } from "@/components/ui/pagination";
+
+const ENTRIES_PER_PAGE = 8;
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" });
@@ -32,10 +35,14 @@ export function BodyweightTracker({ initialOverview }: { initialOverview: BodyWe
   const [overview, setOverview] = useState(initialOverview);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [page, setPage] = useState(1);
 
   async function refresh() {
     const response = await fetch("/api/bodyweight");
-    if (response.ok) setOverview(await response.json());
+    if (response.ok) {
+      setOverview(await response.json());
+      setPage(1);
+    }
   }
 
   async function confirmDelete() {
@@ -55,7 +62,13 @@ export function BodyweightTracker({ initialOverview }: { initialOverview: BodyWe
 
   const { unitLabel, toDisplay } = useUnit();
   const color = "var(--muscle-calves)";
-  const recentEntries = [...overview.entries].reverse().slice(0, 8);
+  const reversedEntries = [...overview.entries].reverse();
+  const totalPages = Math.max(1, Math.ceil(reversedEntries.length / ENTRIES_PER_PAGE));
+  const currentPage = Math.min(page, totalPages);
+  const recentEntries = reversedEntries.slice(
+    (currentPage - 1) * ENTRIES_PER_PAGE,
+    currentPage * ENTRIES_PER_PAGE
+  );
   const displaySeries = overview.entries.map((e) => ({ date: e.date, weight: toDisplay(e.weight) }));
 
   const TrendIcon = overview.trend > 0.02 ? TrendingUp : overview.trend < -0.02 ? TrendingDown : Minus;
@@ -206,6 +219,7 @@ export function BodyweightTracker({ initialOverview }: { initialOverview: BodyWe
                   </div>
                 ))}
               </div>
+              <Pagination page={currentPage} totalPages={totalPages} onPageChange={setPage} className="py-4" />
             </CardContent>
           </Card>
         </>

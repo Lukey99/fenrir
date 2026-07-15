@@ -53,4 +53,31 @@ test.describe("Suivi du poids de corps", () => {
 
     await expect(page.getByText("Pas encore de pesée")).toBeVisible();
   });
+
+  test("l'historique des pesées est paginé au-delà de 8 entrées", async ({ page }) => {
+    // Seed via l'API plutôt que 9 allers-retours de dialog — la pagination
+    // est ce qu'on teste, pas le formulaire d'ajout (déjà couvert ailleurs).
+    for (let i = 0; i < 9; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const response = await page.request.post("/api/bodyweight", {
+        data: { date: date.toISOString().slice(0, 10), weight: 80 + i },
+      });
+      expect(response.ok()).toBe(true);
+    }
+
+    await page.reload();
+    await expect(page.getByText("9 pesées enregistrées.")).toBeVisible();
+    await expect(page.getByText("Page 1 / 2")).toBeVisible();
+
+    // Scoped to each row's delete button rather than the "NN kg" text, which
+    // also matches the stat cards (Dernière pesée, moyennes) above the list.
+    const rowsBefore = await page.getByRole("button", { name: "Supprimer" }).count();
+    expect(rowsBefore).toBe(8);
+
+    await page.getByRole("button", { name: "Page suivante" }).click();
+    await expect(page.getByText("Page 2 / 2")).toBeVisible();
+    const rowsAfter = await page.getByRole("button", { name: "Supprimer" }).count();
+    expect(rowsAfter).toBe(1);
+  });
 });

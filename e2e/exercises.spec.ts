@@ -27,6 +27,19 @@ test.describe("Base d'exercices", () => {
     await expect(page.getByText("Développé couché", { exact: false })).toHaveCount(0);
   });
 
+  test("une catégorie avec plus de 9 exercices est paginée", async ({ page }) => {
+    // Le seed intègre 13 exercices "Pectoraux" — au-delà du seuil de 9 par page.
+    await page.getByRole("button", { name: "Dos" }).click();
+    await expect(page.getByText("Page 1 / 2")).toBeVisible();
+
+    const firstPageExercise = page.getByText("Hyperextensions", { exact: true });
+    await expect(firstPageExercise).toBeVisible();
+
+    await page.getByRole("button", { name: "Page suivante" }).click();
+    await expect(page.getByText("Page 2 / 2")).toBeVisible();
+    await expect(firstPageExercise).toHaveCount(0);
+  });
+
   test("créer un exercice personnalisé l'ajoute à la liste avec le badge Perso", async ({ page }) => {
     await page.getByRole("button", { name: "Nouvel exercice" }).click();
 

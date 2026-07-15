@@ -29,6 +29,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { CreateExerciseDialog } from "@/components/exercises/create-exercise-dialog";
 import { EditExerciseDialog } from "@/components/exercises/edit-exercise-dialog";
+import { Pagination } from "@/components/ui/pagination";
+
+const EXERCISES_PER_PAGE = 9;
 
 export function ExercisesBrowser({ initialExercises }: { initialExercises: Exercise[] }) {
   const [exercises, setExercises] = useState(initialExercises);
@@ -37,6 +40,17 @@ export function ExercisesBrowser({ initialExercises }: { initialExercises: Exerc
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
   const [deletingExercise, setDeletingExercise] = useState<Exercise | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [pages, setPages] = useState<Record<string, number>>({});
+
+  function handleExerciseCreated(exercise: Exercise) {
+    // It's appended at the end of its category's list — jump straight to
+    // the page that will actually contain it, or it silently lands on a
+    // page the user never navigates to.
+    const groupCount = exercises.filter((e) => e.muscleGroup === exercise.muscleGroup).length;
+    const newPage = Math.ceil((groupCount + 1) / EXERCISES_PER_PAGE);
+    setPages((prev) => ({ ...prev, [exercise.muscleGroup]: newPage }));
+    setExercises((prev) => [...prev, exercise]);
+  }
 
   async function handleDelete() {
     if (!deletingExercise) return;
@@ -65,6 +79,17 @@ export function ExercisesBrowser({ initialExercises }: { initialExercises: Exerc
     });
   }, [exercises, search, activeGroup]);
 
+  // A new search/filter reshuffles what's in each category — start every
+  // section back at page 1 rather than leaving it on a now-unrelated page.
+  // Adjusting state during render (not in an effect) per React's own
+  // guidance for "resetting state when a prop changes".
+  const filterKey = `${search}|${activeGroup}`;
+  const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
+  if (filterKey !== prevFilterKey) {
+    setPrevFilterKey(filterKey);
+    setPages({});
+  }
+
   const grouped = useMemo(() => {
     const groups = new Map<string, Exercise[]>();
     for (const group of muscleGroupOrder) groups.set(group, []);
@@ -85,7 +110,7 @@ export function ExercisesBrowser({ initialExercises }: { initialExercises: Exerc
             {exercises.length} exercices disponibles.
           </p>
         </div>
-        <CreateExerciseDialog onCreated={(exercise) => setExercises((prev) => [...prev, exercise])} />
+        <CreateExerciseDialog onCreated={handleExerciseCreated} />
       </div>
 
       <div className="space-y-3">
@@ -142,6 +167,13 @@ export function ExercisesBrowser({ initialExercises }: { initialExercises: Exerc
             const groupExercises = grouped.get(group) ?? [];
             if (groupExercises.length === 0) return null;
 
+            const totalPages = Math.max(1, Math.ceil(groupExercises.length / EXERCISES_PER_PAGE));
+            const currentPage = Math.min(pages[group] ?? 1, totalPages);
+            const pagedExercises = groupExercises.slice(
+              (currentPage - 1) * EXERCISES_PER_PAGE,
+              currentPage * EXERCISES_PER_PAGE
+            );
+
             return (
               <section key={group}>
                 <h2 className="mb-3 flex items-center gap-2 font-heading text-sm font-medium">
@@ -156,7 +188,7 @@ export function ExercisesBrowser({ initialExercises }: { initialExercises: Exerc
                   <span className="text-muted-foreground">{muscleGroupLabels[group]}</span>
                 </h2>
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                  {groupExercises.map((exercise, index) => (
+                  {pagedExercises.map((exercise, index) => (
                     <motion.div
                       key={exercise.id}
                       initial={{ opacity: 0, y: 6 }}
@@ -176,7 +208,7 @@ export function ExercisesBrowser({ initialExercises }: { initialExercises: Exerc
                       </div>
                       {exercise.isCustom && (
                         <div className="flex shrink-0 items-center gap-1">
-                          <Badge className="border-transparent bg-brand/12 text-brand">Perso</Badge>
+                          <Badge className="border-transparent bg-brand/12 text-brand-ink">Perso</Badge>
                           <Button
                             variant="ghost"
                             size="icon-xs"
@@ -198,6 +230,12 @@ export function ExercisesBrowser({ initialExercises }: { initialExercises: Exerc
                     </motion.div>
                   ))}
                 </div>
+                <Pagination
+                  page={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={(next) => setPages((prev) => ({ ...prev, [group]: next }))}
+                  className="mt-3"
+                />
               </section>
             );
           })}
@@ -210,6 +248,16 @@ export function ExercisesBrowser({ initialExercises }: { initialExercises: Exerc
           onOpenChange={(open) => !open && setEditingExercise(null)}
           onUpdated={(updated) => {
             setExercises((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
+            // Same problem as creating one: editing into a different muscle
+            // group moves it to that category's list — without this it can
+            // land on a page the user never navigates to.
+            if (editingExercise && editingExercise.muscleGroup !== updated.muscleGroup) {
+              const groupCount = exercises.filter(
+                (e) => e.muscleGroup === updated.muscleGroup && e.id !== updated.id
+              ).length;
+              const newPage = Math.ceil((groupCount + 1) / EXERCISES_PER_PAGE);
+              setPages((prev) => ({ ...prev, [updated.muscleGroup]: newPage }));
+            }
             setEditingExercise(null);
           }}
         />

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Trash2 } from "lucide-react";
@@ -10,8 +11,11 @@ import { useUnit } from "@/hooks/use-unit";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Pagination } from "@/components/ui/pagination";
 import { RecordProgressionChart } from "@/components/records/record-progression-chart";
 import type { PersonalRecordExerciseProgression } from "@/types/personalRecord";
+
+const RECORDS_PER_PAGE = 10;
 
 function formatDate(iso: string) {
   return new Date(`${iso}T12:00:00`).toLocaleDateString("fr-FR", {
@@ -44,6 +48,7 @@ export function RecordProgressionPage({
   const router = useRouter();
   const { unitLabel, toDisplay } = useUnit();
   const colorVar = `var(--muscle-${progression.muscleGroup.toLowerCase()})`;
+  const [page, setPage] = useState(1);
 
   const records = progression.records;
   const displayRecords = records.map((r) => ({
@@ -60,6 +65,14 @@ export function RecordProgressionPage({
     const last = records[records.length - 1].estimated1RM;
     if (first > 0) progressionPercent = Math.round(((last - first) / first) * 1000) / 10;
   }
+
+  const sortedRecords = [...records].sort((a, b) => (a.achievedAt < b.achievedAt ? 1 : -1));
+  const totalPages = Math.max(1, Math.ceil(sortedRecords.length / RECORDS_PER_PAGE));
+  const currentPage = Math.min(page, totalPages);
+  const pagedRecords = sortedRecords.slice(
+    (currentPage - 1) * RECORDS_PER_PAGE,
+    currentPage * RECORDS_PER_PAGE
+  );
 
   const stats = [
     { label: "1RM estimé", value: `${toDisplay(best1RM)} ${unitLabel}` },
@@ -139,29 +152,28 @@ export function RecordProgressionPage({
 
           <Card>
             <CardContent className="space-y-2">
-              {[...records]
-                .sort((a, b) => (a.achievedAt < b.achievedAt ? 1 : -1))
-                .map((record) => (
-                  <div
-                    key={record.id}
-                    className="flex items-center justify-between gap-3 rounded-xl border bg-muted/40 px-4 py-3"
-                  >
-                    <div>
-                      <p className="font-medium">
-                        {toDisplay(record.weight)} {unitLabel} × {record.reps}
-                      </p>
-                      <p className="text-xs text-muted-foreground">{formatDate(record.achievedAt)}</p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label="Supprimer ce record"
-                      onClick={() => deleteRecord(record.id)}
-                    >
-                      <Trash2 className="size-3.5" />
-                    </Button>
+              {pagedRecords.map((record) => (
+                <div
+                  key={record.id}
+                  className="flex items-center justify-between gap-3 rounded-xl border bg-muted/40 px-4 py-3"
+                >
+                  <div>
+                    <p className="font-medium">
+                      {toDisplay(record.weight)} {unitLabel} × {record.reps}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{formatDate(record.achievedAt)}</p>
                   </div>
-                ))}
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Supprimer ce record"
+                    onClick={() => deleteRecord(record.id)}
+                  >
+                    <Trash2 className="size-3.5" />
+                  </Button>
+                </div>
+              ))}
+              <Pagination page={currentPage} totalPages={totalPages} onPageChange={setPage} className="pt-2" />
             </CardContent>
           </Card>
         </>
