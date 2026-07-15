@@ -124,6 +124,7 @@ model User {
   programs        Program[]
   workoutSessions WorkoutSession[]
   bodyWeightEntries BodyWeightEntry[]
+  bodyMeasurementEntries BodyMeasurementEntry[]
   weightGoals     WeightGoal[]
   personalRecords PersonalRecord[]
 }
@@ -304,6 +305,31 @@ model BodyWeightEntry {
   date   DateTime @db.Date
   weight Decimal  @db.Decimal(5, 2)
   note   String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+// ---------------------------------------------------------------------------
+// Body measurements tracking
+// ---------------------------------------------------------------------------
+
+model BodyMeasurementEntry {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  date DateTime @db.Date
+
+  waistCm Decimal? @db.Decimal(5, 2)
+  chestCm Decimal? @db.Decimal(5, 2)
+  hipsCm  Decimal? @db.Decimal(5, 2)
+  armCm   Decimal? @db.Decimal(5, 2)
+  thighCm Decimal? @db.Decimal(5, 2)
+  calfCm  Decimal? @db.Decimal(5, 2)
+  note    String?
 
   createdAt DateTime @default(now())
 

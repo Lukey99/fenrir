@@ -92,6 +92,13 @@ test.describe("Accessibilité", () => {
     await expectNoViolations(page);
   });
 
+  test("onglet mensurations (vide)", async ({ page }) => {
+    await registerNewUser(page);
+    await page.goto("/bodyweight");
+    await page.getByRole("tab", { name: "Mensurations" }).click();
+    await expectNoViolations(page);
+  });
+
   test("paramètres", async ({ page }) => {
     await registerNewUser(page);
     await page.goto("/settings");
