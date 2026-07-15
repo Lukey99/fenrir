@@ -100,7 +100,7 @@ export function BottomTabBar() {
                   onClick={() => setMoreOpen(false)}
                   className={cn(
                     "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors",
-                    isActive ? "bg-brand/12 text-brand" : "text-muted-foreground hover:bg-muted"
+                    isActive ? "bg-brand/12 text-brand-ink" : "text-muted-foreground hover:bg-muted"
                   )}
                 >
                   <Icon className="size-4.5" />

@@ -124,7 +124,7 @@ export function DayCard({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-heading font-medium">{day.name}</h3>
+              <h2 className="font-heading font-medium">{day.name}</h2>
               {day.label && (
                 <Badge variant="secondary" className="text-xs">
                   {day.label}

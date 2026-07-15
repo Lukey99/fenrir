@@ -37,18 +37,21 @@ export const muscleGroupLabels: Record<MuscleGroupValue, string> = {
 // globals.css (validated with the dataviz skill's palette validator). Class
 // names are written out in full (never templated) so Tailwind's static scan
 // picks them up.
+// The background tint keeps the vivid, CVD-validated categorical color; the
+// text uses the darker "-ink" variant of that same color so it clears WCAG
+// AA contrast against the tint (the vivid color alone reads as low as 2:1).
 export const muscleGroupColorClasses: Record<MuscleGroupValue, string> = {
-  CHEST: "bg-muscle-chest/12 text-muscle-chest",
-  BACK: "bg-muscle-back/12 text-muscle-back",
-  SHOULDERS: "bg-muscle-shoulders/12 text-muscle-shoulders",
-  BICEPS: "bg-muscle-biceps/12 text-muscle-biceps",
-  TRICEPS: "bg-muscle-triceps/12 text-muscle-triceps",
-  FOREARMS: "bg-muscle-forearms/12 text-muscle-forearms",
-  QUADRICEPS: "bg-muscle-quadriceps/12 text-muscle-quadriceps",
-  HAMSTRINGS: "bg-muscle-hamstrings/12 text-muscle-hamstrings",
-  GLUTES: "bg-muscle-glutes/12 text-muscle-glutes",
-  CALVES: "bg-muscle-calves/12 text-muscle-calves",
-  CORE: "bg-muscle-core/12 text-muscle-core",
+  CHEST: "bg-muscle-chest/12 text-muscle-chest-ink",
+  BACK: "bg-muscle-back/12 text-muscle-back-ink",
+  SHOULDERS: "bg-muscle-shoulders/12 text-muscle-shoulders-ink",
+  BICEPS: "bg-muscle-biceps/12 text-muscle-biceps-ink",
+  TRICEPS: "bg-muscle-triceps/12 text-muscle-triceps-ink",
+  FOREARMS: "bg-muscle-forearms/12 text-muscle-forearms-ink",
+  QUADRICEPS: "bg-muscle-quadriceps/12 text-muscle-quadriceps-ink",
+  HAMSTRINGS: "bg-muscle-hamstrings/12 text-muscle-hamstrings-ink",
+  GLUTES: "bg-muscle-glutes/12 text-muscle-glutes-ink",
+  CALVES: "bg-muscle-calves/12 text-muscle-calves-ink",
+  CORE: "bg-muscle-core/12 text-muscle-core-ink",
 };
 
 // Broader, user-facing groupings on top of the muscle group taxonomy above —

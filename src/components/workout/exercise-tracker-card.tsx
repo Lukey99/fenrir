@@ -90,7 +90,7 @@ export function ExerciseTrackerCard({
       <CardHeader className="flex flex-row items-center justify-between gap-2">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h3 className="truncate font-heading font-medium">{sessionExercise.exercise.name}</h3>
+            <h2 className="truncate font-heading font-medium">{sessionExercise.exercise.name}</h2>
             {isSkipped && (
               <Badge variant="outline" className="shrink-0 text-xs">
                 Ignoré

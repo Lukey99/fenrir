@@ -153,7 +153,7 @@ export function ProductCarousel() {
               className={cn(
                 "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
                 isActive
-                  ? "bg-brand/12 text-brand"
+                  ? "bg-brand/12 text-brand-ink"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
             >

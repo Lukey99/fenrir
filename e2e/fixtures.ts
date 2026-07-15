@@ -41,7 +41,7 @@ export async function createProgramWithExercise(
   await page.getByRole("button", { name: "Ajouter un jour" }).click();
   await page.getByLabel("Nom").fill(dayName);
   await page.getByRole("button", { name: "Enregistrer" }).click();
-  await expect(page.getByRole("heading", { name: dayName, level: 3 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: dayName, level: 2 })).toBeVisible();
 
   await page.getByRole("button", { name: "Ajouter un exercice" }).click();
   await page.getByPlaceholder("Rechercher un exercice...").fill(exerciseName);

@@ -62,6 +62,9 @@ export default function RegisterPage() {
 
   return (
     <AuthMotion>
+      {/* CardTitle below is a styled <div>, not a heading — this is the
+          page's real, document-structure h1 for screen readers. */}
+      <h1 className="sr-only">Créer un compte</h1>
       <Card>
         <CardHeader>
           <CardTitle>Créer un compte</CardTitle>

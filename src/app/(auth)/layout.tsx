@@ -6,7 +6,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-background p-4">
       <AuthGlow />
-      <div className="relative w-full max-w-sm">
+      <main className="relative w-full max-w-sm">
         <Link
           href="/"
           className="group mb-8 flex items-center justify-center gap-2 font-heading text-lg font-semibold"
@@ -17,7 +17,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           Fenrir
         </Link>
         {children}
-      </div>
+      </main>
     </div>
   );
 }

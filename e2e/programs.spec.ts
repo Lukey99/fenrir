@@ -15,7 +15,7 @@ async function addDay(page: Page, dayName: string) {
   await page.getByRole("button", { name: "Ajouter un jour" }).click();
   await page.getByLabel("Nom").fill(dayName);
   await page.getByRole("button", { name: "Enregistrer" }).click();
-  await expect(page.getByRole("heading", { name: dayName, level: 3 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: dayName, level: 2 })).toBeVisible();
 }
 
 test.describe("Constructeur de programmes", () => {
