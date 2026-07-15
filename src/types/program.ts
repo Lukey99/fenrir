@@ -19,6 +19,7 @@ export type ProgramDayExerciseDTO = {
   targetWeight: string | null;
   restSeconds: number | null;
   notes: string | null;
+  supersetGroup: number | null;
 };
 
 export type ProgramDayDTO = {

@@ -5,6 +5,7 @@ import { StatCards } from "@/components/dashboard/stat-cards";
 import { ProfileCard } from "@/components/dashboard/profile-card";
 import { ActivityStrip } from "@/components/dashboard/activity-strip";
 import { TodaySessionCard } from "@/components/dashboard/today-session-card";
+import { ActiveSessionCard } from "@/components/dashboard/active-session-card";
 import { LastSessionCard } from "@/components/dashboard/last-session-card";
 import { RecentRecordsTable } from "@/components/dashboard/recent-records-table";
 import type { DashboardStatsDTO } from "@/types/dashboard";
@@ -45,7 +46,11 @@ export function DashboardOverview({ stats }: { stats: DashboardStatsDTO }) {
       </div>
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 md:grid-cols-3 md:overflow-hidden">
-        <TodaySessionCard suggestedSessions={stats.suggestedSessions} />
+        {stats.activeSession ? (
+          <ActiveSessionCard activeSession={stats.activeSession} />
+        ) : (
+          <TodaySessionCard suggestedSessions={stats.suggestedSessions} />
+        )}
 
         <LastSessionCard lastSession={stats.lastSession} />
 

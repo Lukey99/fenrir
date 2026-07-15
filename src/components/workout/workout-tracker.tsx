@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import type { WorkoutSessionDTO, SessionExerciseDTO } from "@/types/workout";
 import { muscleGroupLabels } from "@/lib/constants";
+import { groupBySupersetGroup } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +23,18 @@ import {
 import { ExerciseTrackerCard } from "@/components/workout/exercise-tracker-card";
 import { AddSessionExerciseDialog } from "@/components/workout/add-session-exercise-dialog";
 import { RestTimer } from "@/components/workout/rest-timer";
+import { SupersetGroupCard } from "@/components/workout/superset-group-card";
+
+/** Only the last exercise in a superset (by order) should trigger the normal
+ * rest timer — the others should flow straight into the next exercise. An
+ * ungrouped exercise always counts as "last". */
+function isLastInGroup(exercise: SessionExerciseDTO, all: SessionExerciseDTO[]): boolean {
+  if (exercise.supersetGroup == null) return true;
+  const groupOrders = all
+    .filter((e) => e.supersetGroup === exercise.supersetGroup)
+    .map((e) => e.order);
+  return exercise.order === Math.max(...groupOrders);
+}
 
 type ExerciseOption = {
   id: string;
@@ -139,16 +152,27 @@ export function WorkoutTracker({
       </div>
 
       <div className="space-y-4">
-        {session.exercises.map((sessionExercise) => (
-          <ExerciseTrackerCard
-            key={sessionExercise.id}
-            sessionId={session.id}
-            sessionExercise={sessionExercise}
-            exercises={exercises}
-            onChanged={updateExercise}
-            onSetCompleted={(rest) => setRestSeconds(rest ?? 90)}
-          />
-        ))}
+        {groupBySupersetGroup(session.exercises).map((item) => {
+          const card = (sessionExercise: SessionExerciseDTO) => (
+            <ExerciseTrackerCard
+              key={sessionExercise.id}
+              sessionId={session.id}
+              sessionExercise={sessionExercise}
+              exercises={exercises}
+              onChanged={updateExercise}
+              onSetCompleted={(rest) => {
+                if (isLastInGroup(sessionExercise, session.exercises)) setRestSeconds(rest ?? 90);
+              }}
+            />
+          );
+          return Array.isArray(item) ? (
+            <SupersetGroupCard key={`group-${item[0].supersetGroup}`}>
+              {item.map(card)}
+            </SupersetGroupCard>
+          ) : (
+            card(item)
+          );
+        })}
 
         {session.exercises.length === 0 && (
           <div className="rounded-xl border border-dashed py-12 text-center text-sm text-muted-foreground">

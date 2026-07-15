@@ -49,6 +49,7 @@ export default async function WorkoutSessionPage({
       targetWeight: exercise.targetWeight ? exercise.targetWeight.toString() : null,
       restSeconds: exercise.restSeconds,
       notes: exercise.notes,
+      supersetGroup: exercise.supersetGroup,
       sets: exercise.sets.map((set) => ({
         id: set.id,
         setNumber: set.setNumber,

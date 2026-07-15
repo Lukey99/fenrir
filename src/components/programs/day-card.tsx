@@ -1,10 +1,12 @@
 "use client";
 
-import { ArrowUp, ArrowDown, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { ArrowUp, ArrowDown, Trash2, Link2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import type { ProgramDayDTO, ProgramDayExerciseDTO } from "@/types/program";
 import { muscleGroupLabels } from "@/lib/constants";
+import { groupBySupersetGroup } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +14,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { DayFormDialog } from "@/components/programs/day-form-dialog";
 import { AddExerciseDialog } from "@/components/programs/add-exercise-dialog";
 import { ExerciseRow } from "@/components/programs/exercise-row";
+import { SupersetGroup } from "@/components/programs/superset-group";
 import { StartSessionButton } from "@/components/workout/start-session-button";
 
 type ExerciseOption = {
@@ -42,6 +45,9 @@ export function DayCard({
   onDayMove: (id: string, direction: "up" | "down") => void;
   onExercisesChange: (dayId: string, exercises: ProgramDayExerciseDTO[]) => void;
 }) {
+  const [grouping, setGrouping] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
   async function handleRemoveDay() {
     const response = await fetch(`/api/programs/${programId}/days/${day.id}`, {
       method: "DELETE",
@@ -98,6 +104,47 @@ export function DayCard({
     ]);
   }
 
+  function toggleSelected(id: string) {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  }
+
+  function cancelGrouping() {
+    setGrouping(false);
+    setSelectedIds([]);
+  }
+
+  async function handleCreateSuperset() {
+    const nextGroup = Math.max(0, ...day.exercises.map((e) => e.supersetGroup ?? 0)) + 1;
+    const results = await Promise.all(
+      selectedIds.map((id) =>
+        fetch(`/api/programs/${programId}/days/${day.id}/exercises/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ supersetGroup: nextGroup }),
+        })
+      )
+    );
+    if (results.some((r) => !r.ok)) {
+      toast.error("Impossible de créer le superset.");
+      return;
+    }
+    onExercisesChange(
+      day.id,
+      day.exercises.map((e) => (selectedIds.includes(e.id) ? { ...e, supersetGroup: nextGroup } : e))
+    );
+    toast.success("Superset créé.");
+    cancelGrouping();
+  }
+
+  function handleUngrouped(ids: string[]) {
+    onExercisesChange(
+      day.id,
+      day.exercises.map((e) => (ids.includes(e.id) ? { ...e, supersetGroup: null } : e))
+    );
+  }
+
+  const grouped = groupBySupersetGroup(day.exercises);
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between gap-2">
@@ -137,6 +184,17 @@ export function DayCard({
           </div>
         </div>
         <div className="flex items-center gap-1">
+          {day.exercises.length >= 2 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1.5 text-xs"
+              onClick={() => (grouping ? cancelGrouping() : setGrouping(true))}
+            >
+              {grouping ? <X className="size-3.5" /> : <Link2 className="size-3.5" />}
+              {grouping ? "Annuler" : "Grouper en superset"}
+            </Button>
+          )}
           <StartSessionButton programDayId={day.id} size="sm" variant="outline">
             Démarrer
           </StartSessionButton>
@@ -147,23 +205,56 @@ export function DayCard({
         </div>
       </CardHeader>
       <CardContent className="space-y-2">
-        {day.exercises.map((dayExercise, index) => (
-          <ExerciseRow
-            key={dayExercise.id}
-            programId={programId}
-            dayId={day.id}
-            dayExercise={dayExercise}
-            isFirst={index === 0}
-            isLast={index === day.exercises.length - 1}
-            onUpdated={handleExerciseUpdated}
-            onRemoved={handleExerciseRemoved}
-            onMove={handleExerciseMove}
-          />
-        ))}
+        {grouped.map((item) =>
+          Array.isArray(item) ? (
+            <SupersetGroup
+              key={`group-${item[0].supersetGroup}`}
+              programId={programId}
+              dayId={day.id}
+              exercises={item}
+              isFirst={day.exercises[0]?.id === item[0].id}
+              isLast={day.exercises[day.exercises.length - 1]?.id === item[item.length - 1].id}
+              onUpdated={handleExerciseUpdated}
+              onRemoved={handleExerciseRemoved}
+              onMove={handleExerciseMove}
+              onUngrouped={handleUngrouped}
+            />
+          ) : (
+            <ExerciseRow
+              key={item.id}
+              programId={programId}
+              dayId={day.id}
+              dayExercise={item}
+              isFirst={day.exercises[0]?.id === item.id}
+              isLast={day.exercises[day.exercises.length - 1]?.id === item.id}
+              onUpdated={handleExerciseUpdated}
+              onRemoved={handleExerciseRemoved}
+              onMove={handleExerciseMove}
+              selectable={grouping}
+              selected={selectedIds.includes(item.id)}
+              onToggleSelect={toggleSelected}
+            />
+          )
+        )}
         {day.exercises.length === 0 && (
           <p className="rounded-lg border border-dashed py-6 text-center text-sm text-muted-foreground">
             Aucun exercice pour ce jour.
           </p>
+        )}
+        {grouping && (
+          <div className="flex items-center justify-between rounded-lg border border-dashed px-3 py-2">
+            <span className="text-xs text-muted-foreground">
+              {selectedIds.length} sélectionné{selectedIds.length > 1 ? "s" : ""}
+            </span>
+            <Button
+              size="sm"
+              className="text-xs"
+              disabled={selectedIds.length < 2}
+              onClick={handleCreateSuperset}
+            >
+              Créer le superset
+            </Button>
+          </div>
         )}
         <AddExerciseDialog
           programId={programId}

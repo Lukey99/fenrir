@@ -208,6 +208,10 @@ model ProgramDayExercise {
   targetWeight Decimal? @db.Decimal(6, 2)
   restSeconds  Int?
   notes        String?
+  // Exercises sharing the same (non-null) number within a day are a
+  // superset/circuit — performed back-to-back, rest only after the last one.
+  // Only unique within a programDayId, not globally.
+  supersetGroup Int?
 
   sessionExercises SessionExercise[]
 
@@ -261,6 +265,9 @@ model SessionExercise {
   targetWeight  Decimal? @db.Decimal(6, 2)
   restSeconds   Int?
   notes         String?
+  // Snapshot of the program day exercise's grouping at session-start time —
+  // see ProgramDayExercise.supersetGroup.
+  supersetGroup Int?
 
   sets WorkoutSet[]
 

@@ -50,6 +50,7 @@ export default async function ProgramDetailPage({
         targetWeight: exercise.targetWeight ? exercise.targetWeight.toString() : null,
         restSeconds: exercise.restSeconds,
         notes: exercise.notes,
+        supersetGroup: exercise.supersetGroup,
       })),
     })),
   };

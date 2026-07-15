@@ -138,6 +138,33 @@ test.describe("Constructeur de programmes", () => {
     await expect(page.getByText("1 exercice")).toBeVisible();
   });
 
+  test("grouper deux exercices en superset puis les dissocier", async ({ page }) => {
+    await createProgram(page, "Programme Superset");
+    await addDay(page, "Jour Superset");
+
+    for (const name of ["Développé couché barre", "Curl haltères"]) {
+      await page.getByRole("button", { name: "Ajouter un exercice" }).click();
+      await page.getByPlaceholder("Rechercher un exercice...").fill(name);
+      await page.getByText(name, { exact: true }).click();
+      await page.getByRole("button", { name: "Ajouter" }).click();
+      await expect(page.getByText(name, { exact: true })).toBeVisible();
+    }
+
+    await page.getByRole("button", { name: "Grouper en superset" }).click();
+    await page
+      .getByRole("checkbox", { name: "Sélectionner Développé couché barre pour le superset" })
+      .check();
+    await page.getByRole("checkbox", { name: "Sélectionner Curl haltères pour le superset" }).check();
+    await page.getByRole("button", { name: "Créer le superset" }).click();
+
+    await expect(page.getByText("Superset — 2 exercices enchaînés")).toBeVisible();
+
+    await page.getByRole("button", { name: "Dissocier" }).click();
+    await expect(page.getByText("Superset — 2 exercices enchaînés")).toHaveCount(0);
+    await expect(page.getByText("Développé couché barre", { exact: true })).toBeVisible();
+    await expect(page.getByText("Curl haltères", { exact: true })).toBeVisible();
+  });
+
   test("dupliquer, archiver et supprimer un programme", async ({ page }) => {
     await page.goto("/programs");
     await page.getByRole("button", { name: "Nouveau programme" }).click();

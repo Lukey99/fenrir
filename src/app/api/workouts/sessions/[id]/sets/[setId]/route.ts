@@ -21,8 +21,8 @@ export async function PATCH(request: Request, { params }: Params) {
   }
 
   try {
-    const set = await workoutService.updateSet(setId, session.user.id, parsed.data);
-    return NextResponse.json({ set });
+    const { set, newRecord } = await workoutService.updateSet(setId, session.user.id, parsed.data);
+    return NextResponse.json({ set, newRecord });
   } catch (error) {
     return toErrorResponse(error);
   }

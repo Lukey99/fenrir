@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Trash2 } from "lucide-react";
+import { Check, Trash2, Trophy } from "lucide-react";
 import { toast } from "sonner";
 
 import type { WorkoutSetDTO } from "@/types/workout";
@@ -41,6 +41,12 @@ export function SetRow({
     }
     const data = await response.json();
     onUpdated(data.set);
+    if (data.newRecord) {
+      toast.success(
+        `Nouveau record : ${data.newRecord.exerciseName} à ${toDisplay(data.newRecord.weight)} ${unitLabel} × ${data.newRecord.reps} !`,
+        { icon: <Trophy className="size-4" /> }
+      );
+    }
   }
 
   function commitWeight() {
@@ -60,7 +66,16 @@ export function SetRow({
 
   async function toggleComplete() {
     const nextCompleted = !set.completed;
-    await patch({ completed: nextCompleted });
+    const body: Record<string, unknown> = { completed: nextCompleted };
+    if (nextCompleted) {
+      // Weight/reps otherwise only commit independently on blur, which can
+      // race this PATCH — bundle the current field values into the same
+      // request so the server sees them at the exact moment it checks for a
+      // new PR, instead of whatever was already saved before this click.
+      body.weight = weight === "" ? null : fromDisplay(decimalNumber(weight));
+      body.reps = reps === "" ? null : Number(reps);
+    }
+    await patch(body);
     if (nextCompleted) onCompleted();
   }
 

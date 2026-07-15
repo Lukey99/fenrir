@@ -50,6 +50,29 @@ export function optionalString(value: string): string | undefined {
   return trimmed === "" ? undefined : trimmed
 }
 
+/**
+ * Clusters items sharing a `supersetGroup` together (at the position of the
+ * first member), regardless of whether they're contiguous in the input
+ * order — used for both ProgramDayExercise and SessionExercise, which both
+ * carry this field independently but share the same "circuit" concept.
+ */
+export function groupBySupersetGroup<T extends { id: string; supersetGroup: number | null }>(
+  items: T[]
+): (T | T[])[] {
+  const seenGroups = new Set<number>()
+  const result: (T | T[])[] = []
+  for (const item of items) {
+    if (item.supersetGroup == null) {
+      result.push(item)
+      continue
+    }
+    if (seenGroups.has(item.supersetGroup)) continue
+    seenGroups.add(item.supersetGroup)
+    result.push(items.filter((other) => other.supersetGroup === item.supersetGroup))
+  }
+  return result
+}
+
 /** Avatar fallback initials — from the name if present, else the email's first letter. */
 export function initials(name?: string | null, email?: string | null): string {
   if (name) {

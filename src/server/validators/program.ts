@@ -52,5 +52,6 @@ export const updateProgramDayExerciseSchema = z.object({
   restSeconds: z.number().int().min(0).max(1800).nullable().optional(),
   notes: z.string().trim().max(300).nullable().optional(),
   order: z.number().int().min(0).optional(),
+  supersetGroup: z.number().int().nullable().optional(),
 });
 export type UpdateProgramDayExerciseInput = z.infer<typeof updateProgramDayExerciseSchema>;

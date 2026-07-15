@@ -2,7 +2,9 @@ import { workoutRepository } from "@/server/repositories/workoutRepository";
 import { programRepository } from "@/server/repositories/programRepository";
 import { exerciseRepository } from "@/server/repositories/exerciseRepository";
 import { workoutStatsRepository } from "@/server/repositories/workoutStatsRepository";
+import { personalRecordRepository } from "@/server/repositories/personalRecordRepository";
 import { NotFoundError } from "@/server/errors";
+import { estimate1RM, dateKey } from "@/server/services/analytics";
 import type {
   StartSessionInput,
   AddSessionExerciseInput,
@@ -39,6 +41,39 @@ async function getDefaultWeight(userId: string, exerciseId: string): Promise<num
   return last?.weight ? Number(last.weight) : null;
 }
 
+/** If this set's estimated 1RM beats every PersonalRecord logged so far for
+ * this exercise (or there isn't one yet), log it as a new record automatically
+ * — surfacing it live during the set that earned it, instead of only
+ * counting whatever the user remembers to log by hand afterward. */
+async function maybeRecordNewPR(
+  userId: string,
+  exercise: { id: string; name: string },
+  weight: number,
+  reps: number
+) {
+  const estimated1RM = estimate1RM(weight, reps);
+  const existing = await personalRecordRepository.findForExercise(userId, exercise.id);
+  const bestKnown1RM = existing.reduce(
+    (max, r) => Math.max(max, estimate1RM(Number(r.weight), r.reps)),
+    0
+  );
+  if (estimated1RM <= bestKnown1RM) return null;
+
+  await personalRecordRepository.create(userId, {
+    exerciseId: exercise.id,
+    weight,
+    reps,
+    achievedAt: new Date(`${dateKey(new Date())}T00:00:00.000Z`),
+  });
+
+  return {
+    exerciseName: exercise.name,
+    weight,
+    reps,
+    estimated1RM: Math.round(estimated1RM * 10) / 10,
+  };
+}
+
 export const workoutService = {
   getDefaultWeights(userId: string) {
     return workoutStatsRepository.findLastWeightPerExerciseForUser(userId);
@@ -70,6 +105,7 @@ export const workoutService = {
         targetWeight,
         restSeconds: pde.restSeconds,
         notes: pde.notes,
+        supersetGroup: pde.supersetGroup,
         defaultWeight: targetWeight ?? defaultWeights.get(pde.exerciseId) ?? null,
       };
     });
@@ -224,8 +260,19 @@ export const workoutService = {
   },
 
   async updateSet(id: string, userId: string, input: UpdateWorkoutSetInput) {
-    await requireOwnedSet(id, userId);
-    return workoutRepository.updateSet(id, input);
+    const set = await requireOwnedSet(id, userId);
+    const updated = await workoutRepository.updateSet(id, input);
+
+    // Only worth checking at the moment a set is actually marked done (not
+    // every keystroke on weight/reps, and not when un-checking) — matches
+    // the one UI action (the checkmark) this is meant to react to.
+    const weight = updated.weight != null ? Number(updated.weight) : null;
+    const newRecord =
+      input.completed === true && weight && updated.reps
+        ? await maybeRecordNewPR(userId, set.sessionExercise.exercise, weight, updated.reps)
+        : null;
+
+    return { set: updated, newRecord };
   },
 
   async removeSet(id: string, userId: string) {

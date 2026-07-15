@@ -17,6 +17,9 @@ export function ExerciseRow({
   onUpdated,
   onRemoved,
   onMove,
+  selectable = false,
+  selected = false,
+  onToggleSelect,
 }: {
   programId: string;
   dayId: string;
@@ -26,6 +29,10 @@ export function ExerciseRow({
   onUpdated: (dayExercise: ProgramDayExerciseDTO) => void;
   onRemoved: (id: string) => void;
   onMove: (id: string, direction: "up" | "down") => void;
+  /** Superset-grouping mode: shows a checkbox instead of the reorder arrows. */
+  selectable?: boolean;
+  selected?: boolean;
+  onToggleSelect?: (id: string) => void;
 }) {
   async function handleRemove() {
     const response = await fetch(
@@ -47,26 +54,36 @@ export function ExerciseRow({
       className="flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm"
       style={{ borderLeftColor: `var(--muscle-${dayExercise.exercise.muscleGroup.toLowerCase()})`, borderLeftWidth: 3 }}
     >
-      <div className="flex flex-col">
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          disabled={isFirst}
-          onClick={() => onMove(dayExercise.id, "up")}
-          aria-label="Monter"
-        >
-          <ArrowUp className="size-3" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          disabled={isLast}
-          onClick={() => onMove(dayExercise.id, "down")}
-          aria-label="Descendre"
-        >
-          <ArrowDown className="size-3" />
-        </Button>
-      </div>
+      {selectable ? (
+        <input
+          type="checkbox"
+          className="size-4 shrink-0 accent-brand"
+          checked={selected}
+          onChange={() => onToggleSelect?.(dayExercise.id)}
+          aria-label={`Sélectionner ${dayExercise.exercise.name} pour le superset`}
+        />
+      ) : (
+        <div className="flex flex-col">
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            disabled={isFirst}
+            onClick={() => onMove(dayExercise.id, "up")}
+            aria-label="Monter"
+          >
+            <ArrowUp className="size-3" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            disabled={isLast}
+            onClick={() => onMove(dayExercise.id, "down")}
+            aria-label="Descendre"
+          >
+            <ArrowDown className="size-3" />
+          </Button>
+        </div>
+      )}
 
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium">{dayExercise.exercise.name}</p>

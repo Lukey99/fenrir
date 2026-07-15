@@ -45,6 +45,7 @@ export const workoutRepository = {
       targetWeight: number | null;
       restSeconds: number | null;
       notes: string | null;
+      supersetGroup: number | null;
       defaultWeight: number | null;
     }[]
   ) {
@@ -63,6 +64,7 @@ export const workoutRepository = {
             targetWeight: se.targetWeight,
             restSeconds: se.restSeconds,
             notes: se.notes,
+            supersetGroup: se.supersetGroup,
             sets: {
               create: Array.from({ length: se.targetSets }, (_, i) => ({
                 setNumber: i + 1,
@@ -230,7 +232,10 @@ export const workoutRepository = {
       where: { id },
       include: {
         sessionExercise: {
-          include: { session: { select: { id: true, userId: true } } },
+          include: {
+            session: { select: { id: true, userId: true } },
+            exercise: { select: { id: true, name: true } },
+          },
         },
       },
     });

@@ -35,6 +35,7 @@ export type SessionExerciseDTO = {
   targetWeight: string | null;
   restSeconds: number | null;
   notes: string | null;
+  supersetGroup: number | null;
   sets: WorkoutSetDTO[];
 };
 
