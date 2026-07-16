@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, Plus, SkipForward, Square } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -20,14 +20,27 @@ export function RestScreen({
 }) {
   const [remaining, setRemaining] = useState(seconds);
 
+  // `onDone` is a fresh closure every render of the parent (which itself
+  // re-renders every second for the elapsed-time ticker) — depending on it
+  // directly would tear down and recreate this interval on every parent
+  // tick, not just when `remaining` actually changes, making the countdown
+  // drift/stall. A ref sidesteps that without needing `onDone` in the deps.
+  const onDoneRef = useRef(onDone);
+  useEffect(() => {
+    onDoneRef.current = onDone;
+  }, [onDone]);
+
+  useEffect(() => {
+    const interval = setInterval(() => setRemaining((r) => (r > 0 ? r - 1 : r)), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     if (remaining <= 0) {
-      const timeout = setTimeout(onDone, 300);
+      const timeout = setTimeout(() => onDoneRef.current(), 300);
       return () => clearTimeout(timeout);
     }
-    const interval = setInterval(() => setRemaining((r) => r - 1), 1000);
-    return () => clearInterval(interval);
-  }, [remaining, onDone]);
+  }, [remaining]);
 
   const minutes = Math.floor(Math.max(remaining, 0) / 60);
   const secs = Math.max(remaining, 0) % 60;

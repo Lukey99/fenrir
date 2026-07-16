@@ -108,7 +108,8 @@ export function GuidedWorkoutSession({
     if (newRecord) {
       setPrsThisSession((prev) => [...prev, newRecord]);
       toast.success(
-        `Nouveau record : ${newRecord.exerciseName} à ${newRecord.weight} kg × ${newRecord.reps} !`
+        `Nouveau record : ${newRecord.exerciseName} à ${newRecord.weight} kg × ${newRecord.reps} !`,
+        { position: "top-center" }
       );
     }
     setRestConfigFor(sessionExerciseId);
