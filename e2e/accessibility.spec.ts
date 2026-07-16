@@ -99,6 +99,21 @@ test.describe("Accessibilité", () => {
     await expectNoViolations(page);
   });
 
+  test("vue imprimable d'un programme", async ({ page }) => {
+    await registerNewUser(page);
+    await createProgramWithExercise(page, {
+      programName: "Programme A11y Export",
+      dayName: "Jour A11y Export",
+      exerciseName: "Développé couché barre",
+    });
+    const [printPage] = await Promise.all([
+      page.context().waitForEvent("page"),
+      page.getByRole("button", { name: "Exporter en PDF" }).click(),
+    ]);
+    await printPage.waitForLoadState();
+    await expectNoViolations(printPage);
+  });
+
   test("paramètres", async ({ page }) => {
     await registerNewUser(page);
     await page.goto("/settings");

@@ -270,3 +270,15 @@
     .text-sheen { animation: none; }
   }
 }
+
+/* Program print/PDF export view (src/app/programs/[id]/print) — the browser's
+   native "Save as PDF" print target, not a generated file, so this is what
+   actually controls the page margins and colors in the exported PDF. */
+@media print {
+  @page {
+    margin: 1.5cm;
+  }
+  body {
+    background: white;
+  }
+}

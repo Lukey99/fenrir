@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FileDown } from "lucide-react";
 
 import type { ProgramDetailDTO, ProgramDayDTO, ProgramDayExerciseDTO } from "@/types/program";
 import { muscleGroupLabels } from "@/lib/constants";
@@ -81,6 +81,16 @@ export function ProgramBuilder({
             {isArchived ? "Archivé" : "Actif"}
           </Badge>
           <EditProgramDialog program={program} onUpdated={setProgram} />
+          <Button
+            variant="outline"
+            size="sm"
+            className="ml-auto gap-1.5"
+            render={<Link href={`/programs/${program.id}/print`} target="_blank" />}
+            nativeButton={false}
+          >
+            <FileDown className="size-4" />
+            Exporter en PDF
+          </Button>
         </div>
         {program.description && (
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{program.description}</p>
