@@ -16,7 +16,10 @@ test.describe("Tableau de bord", () => {
     const sessionId = new URL(page.url()).pathname.split("/workout/")[1];
 
     await page.goto("/dashboard");
-    await expect(page.getByText("Séance en cours")).toBeVisible();
+    // .first(): a reload can transiently leave a second, hidden copy of this
+    // text in the accessibility tree (Next dev/Fast Refresh artifact) — see
+    // the same fix in records.spec.ts.
+    await expect(page.getByText("Séance en cours").first()).toBeVisible();
     await expect(page.getByText("Jour Dashboard").first()).toBeVisible();
     // The "Séance du jour" widget is replaced, not just supplemented — the
     // dashboard shouldn't offer to start a new session on top of the one

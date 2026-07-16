@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { workoutService } from "@/server/services/workoutService";
 import { exerciseService } from "@/server/services/exerciseService";
 import { NotFoundError } from "@/server/errors";
-import { WorkoutTracker } from "@/components/workout/workout-tracker";
+import { GuidedWorkoutSession } from "@/components/workout/guided-workout-session";
 import type { WorkoutSessionDTO } from "@/types/workout";
 
 export default async function WorkoutSessionPage({
@@ -71,5 +71,5 @@ export default async function WorkoutSessionPage({
     equipment: exercise.equipment,
   }));
 
-  return <WorkoutTracker initialSession={sessionDTO} exercises={exerciseOptions} />;
+  return <GuidedWorkoutSession initialSession={sessionDTO} exercises={exerciseOptions} />;
 }

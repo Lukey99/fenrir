@@ -1,10 +1,21 @@
 import { test, expect, type Page } from "@playwright/test";
 import { registerNewUser, createProgramWithExercise } from "./fixtures";
 
+/** Validates the currently-shown set (weight/reps), confirms the rest-config
+ * sheet, and lands on the resting countdown. */
+async function validateSetAndConfirmRest(page: Page, weight: string, reps: string) {
+  await page.getByLabel("Poids (kg)").fill(weight);
+  await page.getByLabel("Reps").fill(reps);
+  await page.getByRole("button", { name: "Valider la série" }).click();
+  await expect(page.getByRole("heading", { name: "Temps de repos" })).toBeVisible();
+  await page.getByRole("button", { name: "Confirmer" }).click();
+  await expect(page.getByRole("button", { name: "Passer le temps de repos" })).toBeVisible();
+}
+
 /**
  * Creates a program day with two exercises grouped into a superset, then
  * starts a session from it. Mirrors the grouping UI flow exercised in
- * programs.spec.ts, but here as setup for the live-tracker behavior.
+ * programs.spec.ts, but here as setup for the guided session's behavior.
  */
 async function createProgramWithSupersetAndStartSession(page: Page) {
   await registerNewUser(page);
@@ -40,7 +51,7 @@ async function createProgramWithSupersetAndStartSession(page: Page) {
   await expect(page).toHaveURL(/\/workout\/.+/, { timeout: 15_000 });
 }
 
-test.describe("Tracker de séance", () => {
+test.describe("Séance guidée", () => {
   test.beforeEach(async ({ page }) => {
     await registerNewUser(page);
     await createProgramWithExercise(page, {
@@ -52,25 +63,81 @@ test.describe("Tracker de séance", () => {
     await expect(page).toHaveURL(/\/workout\/.+/, { timeout: 15_000 });
   });
 
-  test("démarrer une séance affiche l'exercice programmé", async ({ page }) => {
-    await expect(page.getByRole("heading", { name: "Développé couché barre" })).toBeVisible();
-    await expect(page.getByText(/0\/3 séries faites/)).toBeVisible();
+  test("démarrer une séance arrive sur l'écran de sélection d'exercice, sans navigation possible", async ({
+    page,
+  }) => {
+    await expect(page.getByRole("heading", { name: "Jour Full Body" })).toBeVisible();
+    await expect(page.getByText("Choisis l'exercice à faire.")).toBeVisible();
+    await expect(page.getByText("Développé couché barre", { exact: true })).toBeVisible();
+    await expect(page.getByText("Pectoraux · 0/3 séries")).toBeVisible();
+
+    // Le verrouillage de navigation est structurel : aucun lien de menu n'existe sur cette route.
+    await expect(page.getByRole("link", { name: "Tableau de bord" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Programmes" })).toHaveCount(0);
   });
 
-  test("logger une série et la marquer comme terminée", async ({ page }) => {
-    await page.getByPlaceholder("kg").first().fill("80");
-    await page.getByPlaceholder("reps").first().fill("10");
-    await page.getByPlaceholder("RPE").first().fill("8");
-    await page.getByPlaceholder("RPE").first().blur();
+  test("sélectionner un exercice arrive sur l'écran de validation de série", async ({ page }) => {
+    await page.getByText("Développé couché barre", { exact: true }).click();
 
-    await page.getByRole("button", { name: "Marquer la série comme terminée" }).first().click();
-    await expect(page.getByText(/1\/3 séries faites/)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Développé couché barre" })).toBeVisible();
+    await expect(page.getByText("Série 1 / 3")).toBeVisible();
+    await expect(page.getByText("Cible : 8-12 reps")).toBeVisible();
+  });
+
+  test("valider une série demande le temps de repos puis affiche le compte à rebours", async ({
+    page,
+  }) => {
+    await page.getByText("Développé couché barre", { exact: true }).click();
+    await page.getByLabel("Poids (kg)").fill("80");
+    await page.getByLabel("Reps").fill("10");
+    await page.getByRole("button", { name: "Valider la série" }).click();
+
+    await expect(page.getByRole("heading", { name: "Temps de repos" })).toBeVisible();
+    await expect(page.getByLabel("Durée (secondes)")).toHaveValue("90");
+    await page.getByRole("button", { name: "Confirmer" }).click();
+
+    await expect(page.getByText("Repos — Développé couché barre")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Arrêter la séance" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Passer le temps de repos" })).toBeVisible();
+  });
+
+  test("passer le repos enchaîne automatiquement sur la série suivante du même exercice", async ({
+    page,
+  }) => {
+    await page.getByText("Développé couché barre", { exact: true }).click();
+    await validateSetAndConfirmRest(page, "80", "10");
+    await page.getByRole("button", { name: "Passer le temps de repos" }).click();
+
+    await expect(page.getByText("Série 2 / 3")).toBeVisible();
+  });
+
+  test("compléter toutes les séries d'un exercice revient à la sélection avec le badge Terminé", async ({
+    page,
+  }) => {
+    await page.getByText("Développé couché barre", { exact: true }).click();
+    for (let i = 0; i < 3; i++) {
+      await validateSetAndConfirmRest(page, "80", "10");
+      await page.getByRole("button", { name: "Passer le temps de repos" }).click();
+    }
+
+    await expect(page.getByText("Choisis l'exercice à faire.")).toBeVisible();
+    await expect(page.getByText("Terminé", { exact: true })).toBeVisible();
+    await expect(page.getByText("Bravo, tout est terminé")).toBeVisible();
+  });
+
+  test("retour à la liste depuis la validation n'interrompt pas la séance", async ({ page }) => {
+    await page.getByText("Développé couché barre", { exact: true }).click();
+    await page.getByRole("button", { name: "Retour à la liste" }).click();
+
+    await expect(page.getByText("Choisis l'exercice à faire.")).toBeVisible();
+    await expect(page.getByText("Pectoraux · 0/3 séries")).toBeVisible();
   });
 
   test("compléter une série qui bat le record existant l'enregistre et l'annonce", async ({ page }) => {
-    await page.getByPlaceholder("kg").first().fill("100");
-    await page.getByPlaceholder("reps").first().fill("5");
-    await page.getByRole("button", { name: "Marquer la série comme terminée" }).first().click();
+    await page.getByText("Développé couché barre", { exact: true }).click();
+    await page.getByLabel("Poids (kg)").fill("100");
+    await page.getByLabel("Reps").fill("5");
+    await page.getByRole("button", { name: "Valider la série" }).click();
 
     await expect(page.getByText(/Nouveau record.*Développé couché barre/)).toBeVisible();
 
@@ -79,18 +146,16 @@ test.describe("Tracker de séance", () => {
   });
 
   test("compléter une série qui ne bat pas le record existant ne crée rien", async ({ page }) => {
-    await page.getByPlaceholder("kg").first().fill("100");
-    await page.getByPlaceholder("reps").first().fill("5");
-    await page.getByRole("button", { name: "Marquer la série comme terminée" }).first().click();
-    await expect(page.getByText(/Nouveau record/)).toBeVisible();
-    // Let the first toast fully auto-dismiss (sonner's default ~4s) so it
-    // can't be mistaken for a (non-existent) second one below.
+    await page.getByText("Développé couché barre", { exact: true }).click();
+    await validateSetAndConfirmRest(page, "100", "5");
     await expect(page.getByText(/Nouveau record/)).toHaveCount(0, { timeout: 8000 });
+    await page.getByRole("button", { name: "Passer le temps de repos" }).click();
 
     // Deuxième série, plus faible — ne doit pas déclencher de nouveau record.
-    await page.getByPlaceholder("kg").nth(1).fill("60");
-    await page.getByPlaceholder("reps").nth(1).fill("5");
-    await page.getByRole("button", { name: "Marquer la série comme terminée" }).nth(1).click();
+    await expect(page.getByText("Série 2 / 3")).toBeVisible();
+    await page.getByLabel("Poids (kg)").fill("60");
+    await page.getByLabel("Reps").fill("5");
+    await page.getByRole("button", { name: "Valider la série" }).click();
     await page.waitForTimeout(500);
     await expect(page.getByText(/Nouveau record/)).toHaveCount(0);
 
@@ -98,10 +163,18 @@ test.describe("Tracker de séance", () => {
     await expect(page.getByText("60 kg × 5")).toHaveCount(0);
   });
 
-  test("ajouter une série supplémentaire", async ({ page }) => {
-    await expect(page.getByText(/0\/3 séries faites/)).toBeVisible();
-    await page.getByRole("button", { name: "Ajouter une série" }).click();
-    await expect(page.getByText(/0\/4 séries faites/)).toBeVisible();
+  test("ajouter une série supplémentaire une fois les séries prévues terminées", async ({ page }) => {
+    await page.getByText("Développé couché barre", { exact: true }).click();
+    for (let i = 0; i < 3; i++) {
+      await validateSetAndConfirmRest(page, "80", "10");
+      await page.getByRole("button", { name: "Passer le temps de repos" }).click();
+    }
+    await expect(page.getByText("Terminé", { exact: true })).toBeVisible();
+
+    await page.getByText("Développé couché barre", { exact: true }).click();
+    await expect(page.getByText("Toutes les séries prévues sont terminées.")).toBeVisible();
+    await page.getByRole("button", { name: "Ajouter une série supplémentaire" }).click();
+    await expect(page.getByText("Série 4 / 4")).toBeVisible();
   });
 
   test("remplacer un exercice", async ({ page }) => {
@@ -111,7 +184,7 @@ test.describe("Tracker de séance", () => {
     await page.getByText("Squat barre", { exact: true }).click();
     await page.getByRole("button", { name: "Confirmer" }).click();
 
-    await expect(page.getByRole("heading", { name: "Squat barre" })).toBeVisible();
+    await expect(page.getByText("Squat barre", { exact: true })).toBeVisible();
     await expect(page.getByText("Remplacé", { exact: true })).toBeVisible();
   });
 
@@ -131,14 +204,35 @@ test.describe("Tracker de séance", () => {
     await page.getByText("Curl haltères", { exact: true }).click();
     await page.getByRole("button", { name: "Ajouter" }).click();
 
-    await expect(page.getByRole("heading", { name: "Curl haltères" })).toBeVisible();
+    await expect(page.getByText("Curl haltères", { exact: true })).toBeVisible();
     await expect(page.getByText("Ajouté", { exact: true })).toBeVisible();
   });
 
-  test("terminer la séance redirige et confirme", async ({ page }) => {
+  test("terminer la séance affiche un récapitulatif puis ferme la modale", async ({ page }) => {
+    await page.getByText("Développé couché barre", { exact: true }).click();
+    await page.getByLabel("Poids (kg)").fill("80");
+    await page.getByLabel("Reps").fill("10");
+    await page.getByRole("button", { name: "Valider la série" }).click();
+    await page.getByRole("button", { name: "Confirmer" }).click();
+    await page.getByRole("button", { name: "Retour à la liste" }).click();
+
     await page.getByRole("button", { name: "Terminer la séance" }).click();
     await page.getByRole("button", { name: "Terminer", exact: true }).click();
+
+    await expect(page.getByText("Séance terminée !")).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText("800 kg", { exact: false })).toBeVisible();
+
+    await page.getByRole("button", { name: "Fermer" }).click();
     await expect(page).toHaveURL(/\/programs\/.+|\/dashboard/, { timeout: 15_000 });
+  });
+
+  test("arrêter la séance depuis l'écran de repos affiche aussi le récapitulatif", async ({ page }) => {
+    await page.getByText("Développé couché barre", { exact: true }).click();
+    await validateSetAndConfirmRest(page, "80", "10");
+    await page.getByRole("button", { name: "Arrêter la séance" }).click();
+    await page.getByRole("button", { name: "Terminer", exact: true }).click();
+
+    await expect(page.getByText("Séance terminée !")).toBeVisible({ timeout: 10_000 });
   });
 
   test("supprimer une séance (démarrée par accident) redirige et la retire de l'historique", async ({
@@ -152,53 +246,44 @@ test.describe("Tracker de séance", () => {
     await expect(page.getByText("Jour Full Body")).toHaveCount(0);
   });
 
-  test("le poids se pré-remplit automatiquement (série suivante puis séance suivante)", async ({
-    page,
-  }) => {
-    await page.getByPlaceholder("kg").first().fill("80");
-    await page.getByPlaceholder("reps").first().fill("10");
-    await page.getByRole("button", { name: "Marquer la série comme terminée" }).first().click();
-    await expect(page.getByText(/1\/3 séries faites/)).toBeVisible();
-
-    // Une nouvelle série ajoutée dans la même séance reprend le dernier poids saisi.
-    await page.getByRole("button", { name: "Ajouter une série" }).click();
-    await expect(page.getByPlaceholder("kg").nth(3)).toHaveValue("80");
-
-    await page.getByRole("button", { name: "Terminer la séance" }).click();
+  test("le poids se pré-remplit automatiquement d'une séance à l'autre", async ({ page }) => {
+    await page.getByText("Développé couché barre", { exact: true }).click();
+    await page.getByLabel("Poids (kg)").fill("80");
+    await page.getByLabel("Reps").fill("10");
+    await page.getByRole("button", { name: "Valider la série" }).click();
+    await page.getByRole("button", { name: "Confirmer" }).click();
+    await page.getByRole("button", { name: "Arrêter la séance" }).click();
     await page.getByRole("button", { name: "Terminer", exact: true }).click();
+    await expect(page.getByText("Séance terminée !")).toBeVisible({ timeout: 10_000 });
+    await page.getByRole("button", { name: "Fermer" }).click();
     await expect(page).toHaveURL(/\/programs\/.+|\/dashboard/, { timeout: 15_000 });
 
     // Une toute nouvelle séance sur le même exercice reprend le dernier poids loggé.
     await page.getByRole("button", { name: "Démarrer" }).click();
     await expect(page).toHaveURL(/\/workout\/.+/, { timeout: 15_000 });
-    await expect(page.getByPlaceholder("kg").first()).toHaveValue("80");
+    await page.getByText("Développé couché barre", { exact: true }).click();
+    await expect(page.getByLabel("Poids (kg)")).toHaveValue("80");
   });
 });
 
-test.describe("Superset dans le tracker de séance", () => {
+test.describe("Superset dans la séance guidée", () => {
   test.beforeEach(async ({ page }) => {
     await createProgramWithSupersetAndStartSession(page);
   });
 
-  test("le superset s'affiche groupé et le repos n'apparaît qu'après le dernier exercice", async ({
+  test("le superset est signalé dans la sélection, et 'Retour à la liste' permet d'alterner", async ({
     page,
   }) => {
-    await expect(
-      page.getByText("Superset — enchaîne les exercices sans repos entre eux")
-    ).toBeVisible();
+    await expect(page.getByText("Superset", { exact: true }).first()).toBeVisible();
 
-    // Compléter une série sur le PREMIER exercice du groupe : pas de minuteur de repos.
-    await page.getByPlaceholder("kg").first().fill("80");
-    await page.getByPlaceholder("reps").first().fill("10");
-    await page.getByRole("button", { name: "Marquer la série comme terminée" }).first().click();
-    await expect(page.getByText(/1\/6 séries faites/)).toBeVisible();
-    await expect(page.getByRole("button", { name: "Ajouter 15 secondes" })).toHaveCount(0);
+    // Une série sur le premier exercice, puis retour manuel à la liste (au lieu
+    // d'enchaîner automatiquement) pour aller faire le partenaire du superset.
+    await page.getByText("Développé couché barre", { exact: true }).click();
+    await validateSetAndConfirmRest(page, "80", "10");
+    await page.getByRole("button", { name: "Retour à la liste" }).click();
 
-    // Compléter une série sur le DERNIER exercice du groupe : le minuteur apparaît.
-    await page.getByPlaceholder("kg").nth(3).fill("40");
-    await page.getByPlaceholder("reps").nth(3).fill("12");
-    await page.getByRole("button", { name: "Marquer la série comme terminée" }).nth(3).click();
-    await expect(page.getByText(/2\/6 séries faites/)).toBeVisible();
-    await expect(page.getByRole("button", { name: "Ajouter 15 secondes" })).toBeVisible();
+    await expect(page.getByText("Choisis l'exercice à faire.")).toBeVisible();
+    await page.getByText("Curl haltères", { exact: true }).click();
+    await expect(page.getByText("Série 1 / 3")).toBeVisible();
   });
 });

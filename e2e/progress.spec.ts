@@ -16,13 +16,16 @@ test.describe("Progression", () => {
     await expect(page).toHaveURL(/\/workout\/.+/, { timeout: 15_000 });
     sessionId = new URL(page.url()).pathname.split("/workout/")[1];
 
-    await page.getByPlaceholder("kg").first().fill("80");
-    await page.getByPlaceholder("reps").first().fill("10");
-    await page.getByRole("button", { name: "Marquer la série comme terminée" }).first().click();
-    await expect(page.getByText(/1\/3 séries faites/)).toBeVisible();
+    await page.getByText("Développé couché barre", { exact: true }).click();
+    await page.getByLabel("Poids (kg)").fill("80");
+    await page.getByLabel("Reps").fill("10");
+    await page.getByRole("button", { name: "Valider la série" }).click();
+    await page.getByRole("button", { name: "Confirmer" }).click();
 
-    await page.getByRole("button", { name: "Terminer la séance" }).click();
+    await page.getByRole("button", { name: "Arrêter la séance" }).click();
     await page.getByRole("button", { name: "Terminer", exact: true }).click();
+    await expect(page.getByText("Séance terminée !")).toBeVisible({ timeout: 10_000 });
+    await page.getByRole("button", { name: "Fermer" }).click();
     await expect(page).toHaveURL(/\/programs\/.+|\/dashboard/, { timeout: 15_000 });
   });
 

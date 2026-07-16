@@ -56,7 +56,7 @@ test.describe("Accessibilité", () => {
     await expectNoViolations(page);
   });
 
-  test("tracker de séance en direct", async ({ page }) => {
+  test("séance guidée — sélection d'exercice", async ({ page }) => {
     await registerNewUser(page);
     await createProgramWithExercise(page, {
       programName: "Programme A11y Séance",
@@ -65,6 +65,30 @@ test.describe("Accessibilité", () => {
     });
     await page.getByRole("button", { name: "Démarrer" }).click();
     await expect(page).toHaveURL(/\/workout\/.+/, { timeout: 15_000 });
+    await expectNoViolations(page);
+  });
+
+  test("séance guidée — validation de série et repos", async ({ page }) => {
+    await registerNewUser(page);
+    await createProgramWithExercise(page, {
+      programName: "Programme A11y Repos",
+      dayName: "Jour A11y Repos",
+      exerciseName: "Squat barre",
+    });
+    await page.getByRole("button", { name: "Démarrer" }).click();
+    await expect(page).toHaveURL(/\/workout\/.+/, { timeout: 15_000 });
+
+    await page.getByText("Squat barre", { exact: true }).click();
+    await expectNoViolations(page);
+
+    await page.getByLabel("Poids (kg)").fill("80");
+    await page.getByLabel("Reps").fill("10");
+    await page.getByRole("button", { name: "Valider la série" }).click();
+    await expect(page.getByRole("heading", { name: "Temps de repos" })).toBeVisible();
+    await expectNoViolations(page);
+
+    await page.getByRole("button", { name: "Confirmer" }).click();
+    await expect(page.getByRole("button", { name: "Passer le temps de repos" })).toBeVisible();
     await expectNoViolations(page);
   });
 

@@ -71,7 +71,8 @@ test.describe("Constructeur de programmes", () => {
 
     await page.getByRole("button", { name: "Démarrer" }).click();
     await expect(page).toHaveURL(/\/workout\/.+/, { timeout: 15_000 });
-    await expect(page.getByPlaceholder("kg").first()).toHaveValue("100");
+    await page.getByText("Développé couché barre", { exact: true }).click();
+    await expect(page.getByLabel("Poids (kg)")).toHaveValue("100");
   });
 
   test("modifier un exercice qui a déjà un poids cible et un repos ne plante pas", async ({ page }) => {
