@@ -27,6 +27,11 @@ test.describe("Records", () => {
     await page.getByLabel("Reps").fill("5");
     await page.getByRole("button", { name: "Enregistrer" }).click();
 
+    // The dialog keeps its last content (including this same exercise name,
+    // as its description) mounted during its closing transition — clicking
+    // "Squat barre" before it's actually gone can hit that stale text instead
+    // of the real list link below, which does nothing and never navigates.
+    await expect(page.getByRole("dialog")).toHaveCount(0);
     await page.getByText("Squat barre", { exact: true }).click();
     await expect(page).toHaveURL(/\/records\/.+/);
     const exerciseId = new URL(page.url()).pathname.split("/records/")[1];
@@ -48,7 +53,11 @@ test.describe("Records", () => {
     }
 
     await page.reload();
-    await expect(page.getByText("Page 1 / 2")).toBeVisible();
+    // .first(): a reload can transiently leave a second, hidden copy of this
+    // text in the accessibility tree (Next dev/Fast Refresh artifact) — a
+    // bare getByText would then throw a strict-mode violation instead of just
+    // waiting for the one real, visible instance.
+    await expect(page.getByText("Page 1 / 2").first()).toBeVisible();
 
     const rowsBefore = await page.getByRole("button", { name: "Supprimer ce record" }).count();
     expect(rowsBefore).toBe(10);
